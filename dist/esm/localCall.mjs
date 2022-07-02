@@ -1,6 +1,6 @@
 const fs = require('fs');
 const exit = require('exit');
-const JSONBuffer = require('./json-buffer');
+const JSONBuffer = require('json-buffer');
 const callFn = require('./callFn');
 // get data
 const inputFile = process.argv[2];

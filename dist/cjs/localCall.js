@@ -1,7 +1,7 @@
 "use strict";
 var fs = require("fs");
 var exit = require("exit");
-var JSONBuffer = require("./json-buffer");
+var JSONBuffer = require("json-buffer");
 var callFn = require("./callFn");
 // get data
 var inputFile = process.argv[2];
