@@ -31,6 +31,7 @@ describe('node-version-call', function () {
   describe('arguments', function () {
     addTests(function (version) {
       return function () {
+        this.timeout(5000);
         const args = [{ field2: 1 }, 1];
         const returnArguments = path.join(DATA, 'returnArguments.js');
         const result = call(returnArguments, version, { args });
@@ -41,7 +42,7 @@ describe('node-version-call', function () {
   describe('no export', function () {
     addTests(function (version) {
       return function () {
-        this.timeout(10000);
+        this.timeout(5000);
         const noExport = path.join(DATA, 'noExport.js');
         const result = call(noExport, version);
         assert.ok(result);
@@ -52,7 +53,7 @@ describe('node-version-call', function () {
   describe('errors', function () {
     addTests(function (version) {
       return function () {
-        this.timeout(10000);
+        this.timeout(5000);
         const noExport = path.join(DATA, 'throwError.js');
         try {
           call(noExport, version);
