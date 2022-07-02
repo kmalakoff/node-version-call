@@ -9,34 +9,35 @@ function call(filePath, version) {
     var res;
     if (version === "local") res = callFn(filePath, args);
     else {
+        var temp = path.join(tmpdir(), "nvc");
+        var input = path.join(temp, suffix("input"));
+        var output = path.join(temp, suffix("output"));
+        // store data to a file
         var callData = {
             filePath: filePath,
             args: args
         };
-        var temp = tmpdir();
-        var inputFile = path.join(temp, suffix("nvc-input"));
-        var outputFile = path.join(temp, suffix("nvc-output"));
-        // store data to a file
-        fs.writeFileSync(inputFile, JSONBuffer.stringify(callData));
-        unlinkSafe(outputFile);
+        mkdirp.sync(path.dirname(input));
+        fs.writeFileSync(input, JSONBuffer.stringify(callData));
+        unlinkSafe(output);
         // call the function
         var env = options.env || process.env;
         spawnSync("nvu", [
             version,
             "node",
             localCallFile,
-            inputFile,
-            outputFile
+            input,
+            output
         ], {
             env: env,
             stdio: "string"
         });
         // get data and clean up
-        res = JSONBuffer.parse(fs.readFileSync(outputFile, "utf8"));
-        unlinkSafe(inputFile);
-        unlinkSafe(outputFile);
+        res = JSONBuffer.parse(fs.readFileSync(output, "utf8"));
+        unlinkSafe(input);
+        unlinkSafe(output);
     }
-    // res res
+    // error res
     if (res.error) {
         var err = new Error(res.error.message);
         if (res.error.stack) err.stack = res.error.stack;
@@ -50,6 +51,7 @@ var tmpdir = require("os").tmpdir || require("os-shim").tmpdir;
 var suffix = require("temp-suffix");
 var spawnSync = require("cross-spawn-cb").sync;
 var JSONBuffer = require("json-buffer");
+var mkdirp = require("mkdirp");
 var callFn = require("./callFn");
 var localCallFile = path.join(__dirname, "localCall.js");
 function unlinkSafe(filename) {
