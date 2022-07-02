@@ -4,6 +4,7 @@ const tmpdir = require('os').tmpdir || require('os-shim').tmpdir;
 const suffix = require('temp-suffix');
 const spawnSync = require('cross-spawn-cb').sync;
 const JSONBuffer = require('json-buffer');
+const mkdirp = require('mkdirp');
 const callFn = require('./callFn');
 
 export interface JSONObject {
@@ -29,23 +30,24 @@ export default function call(filePath: string, version: string, options: CallOpt
   let res;
   if (version === 'local') res = callFn(filePath, args);
   else {
-    const callData = { filePath, args };
-    const temp = tmpdir();
-    const inputFile = path.join(temp, suffix("nvc-input"));
-    const outputFile = path.join(temp, suffix("nvc-output"));
+    const temp = path.join(tmpdir(), 'nvc');
+    const input = path.join(temp, suffix('input'));
+    const output = path.join(temp, suffix('output'));
 
     // store data to a file
-    fs.writeFileSync(inputFile, JSONBuffer.stringify(callData));
-    unlinkSafe(outputFile);
+    const callData = { filePath, args };
+    mkdirp.sync(path.dirname(input));
+    fs.writeFileSync(input, JSONBuffer.stringify(callData));
+    unlinkSafe(output);
 
     // call the function
     const env = options.env || process.env;
-    spawnSync('nvu', [version, 'node', localCallFile, inputFile, outputFile], { env, stdio: 'string' });
+    spawnSync('nvu', [version, 'node', localCallFile, input, output], { env, stdio: 'string' });
 
     // get data and clean up
-    res = JSONBuffer.parse(fs.readFileSync(outputFile, 'utf8'));
-    unlinkSafe(inputFile);
-    unlinkSafe(outputFile);
+    res = JSONBuffer.parse(fs.readFileSync(output, 'utf8'));
+    unlinkSafe(input);
+    unlinkSafe(output);
   }
 
   // error res
