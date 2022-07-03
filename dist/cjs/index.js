@@ -9,7 +9,7 @@ function call(filePath, version) {
     var res;
     if (version === "local") res = callFn(filePath, args);
     else {
-        var temp = path.join(tmpdir(), "nvc");
+        var temp = path.join(tmpdir(), "node-version-call", shortHash(process.cwd()));
         var input = path.join(temp, suffix("input"));
         var output = path.join(temp, suffix("output"));
         // store data to a file
@@ -22,16 +22,20 @@ function call(filePath, version) {
         unlinkSafe(output);
         // call the function
         var env = options.env || process.env;
-        spawnSync("nvu", [
-            version,
-            "node",
-            localCallFile,
-            input,
-            output
-        ], {
-            env: env,
-            stdio: "string"
-        });
+        try {
+            spawnSync("nvu", [
+                version,
+                "node",
+                localCallFile,
+                input,
+                output
+            ], {
+                env: env,
+                stdio: "string"
+            });
+        } catch (err) {
+            if (err.stderr.indexOf("ExperimentalWarning") < 0) throw err;
+        }
         // get data and clean up
         res = JSONBuffer.parse(fs.readFileSync(output, "utf8"));
         unlinkSafe(input);
@@ -39,9 +43,9 @@ function call(filePath, version) {
     }
     // error res
     if (res.error) {
-        var err = new Error(res.error.message);
-        if (res.error.stack) err.stack = res.error.stack;
-        throw err;
+        var _$err = new Error(res.error.message);
+        if (res.error.stack) _$err.stack = res.error.stack;
+        throw _$err;
     }
     return res.value;
 }
@@ -53,6 +57,7 @@ var spawnSync = require("cross-spawn-cb").sync;
 var JSONBuffer = require("json-buffer");
 var mkdirp = require("mkdirp");
 var callFn = require("./callFn");
+var shortHash = require("short-hash");
 var localCallFile = path.join(__dirname, "localCall.js");
 function unlinkSafe(filename) {
     try {
