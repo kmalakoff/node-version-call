@@ -19,7 +19,7 @@
     "lint": "tsds lint",
     "test": "tsds test:node",
     "test:engines": "tsds test:engines",
-    "version": "tsds version"
+    "version2": "tsds version"
   },
   "homepage": "https://github.com/node-version-call#README.md",
   "repository": {
