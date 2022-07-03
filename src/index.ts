@@ -6,6 +6,7 @@ const spawnSync = require('cross-spawn-cb').sync;
 const JSONBuffer = require('json-buffer');
 const mkdirp = require('mkdirp');
 const callFn = require('./callFn');
+const shortHash = require('short-hash');
 
 export interface JSONObject {
   [x: string]: any;
@@ -30,7 +31,7 @@ export default function call(filePath: string, version: string, options: CallOpt
   let res;
   if (version === 'local') res = callFn(filePath, args);
   else {
-    const temp = path.join(tmpdir(), 'nvc');
+    const temp = path.join(tmpdir(), 'node-version-call', shortHash(process.cwd()));
     const input = path.join(temp, suffix('input'));
     const output = path.join(temp, suffix('output'));
 
@@ -42,7 +43,11 @@ export default function call(filePath: string, version: string, options: CallOpt
 
     // call the function
     const env = options.env || process.env;
-    spawnSync('nvu', [version, 'node', localCallFile, input, output], { env, stdio: 'string' });
+    try {
+      spawnSync('nvu', [version, 'node', localCallFile, input, output], { env, stdio: 'string' });
+    } catch (err) {
+      if (err.stderr.indexOf('ExperimentalWarning') < 0) throw err;
+    }
 
     // get data and clean up
     res = JSONBuffer.parse(fs.readFileSync(output, 'utf8'));
