@@ -7,7 +7,7 @@ Call a function in a specific version of node for browser and node
 ```typescript
 import call from 'node-version-call';
 
-const result = call('path/to/file.js', '0.8', { args: [1, 2, 3] });
+const result = call('0.8', 'path/to/file.js', 'arg1', 2);
 console.log(result); // return value
 ```
 
@@ -16,7 +16,7 @@ console.log(result); // return value
 ```javascript
 var call = require('node-version-call'); // old js calling lts js
 
-var result = call('path/to/file.js', 'lts', { args: [1, 2, 3] });
+var result = call('lts', 'path/to/file.js', 'arg1', 2);
 console.log(result); // return value
 ```
 
