@@ -4,6 +4,7 @@
     "@typescript-eslint/no-explicit-any": "off",
     "prefer-spread": "off",
     "mocha/no-exclusive-tests": "off",
-    "mocha/no-setup-in-describe": "off"
+    "mocha/no-setup-in-describe": "off",
+    "prefer-rest-params": "off"
   }
 }

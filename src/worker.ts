@@ -1,5 +1,4 @@
 const fs = require('fs');
-const exit = require('exit');
 const JSONBuffer = require('json-buffer');
 const callFn = require('./callFn');
 
@@ -11,6 +10,8 @@ const callData = JSONBuffer.parse(fs.readFileSync(input, 'utf8'));
 // call function
 const result = callFn(callData.filePath, callData.args);
 
-// return result
-fs.writeFileSync(output, JSONBuffer.stringify(result), 'utf8');
-exit(0);
+fs.writeFile(output + '.tmp', JSON.stringify(result), function () {
+  fs.rename(output + '.tmp', output, function () {
+    process.exit(0);
+  });
+});
