@@ -1,5 +1,4 @@
 declare const fs: any;
-declare const exit: any;
 declare const JSONBuffer: any;
 declare const callFn: any;
 declare const input: string;

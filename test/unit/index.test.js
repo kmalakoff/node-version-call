@@ -19,7 +19,7 @@ describe('node-version-call', function () {
       return function () {
         this.timeout(20000);
         const processVersion = path.join(DATA, 'processVersion.js');
-        const result = call(processVersion, version);
+        const result = call(version, processVersion);
         if (version === 'local') assert.equal(result, process.version);
         else if (version === 'lts') {
           assert.equal(result[0], 'v');
@@ -34,17 +34,17 @@ describe('node-version-call', function () {
         this.timeout(20000);
         const args = [{ field2: 1 }, 1];
         const returnArguments = path.join(DATA, 'returnArguments.js');
-        const result = call(returnArguments, version, { args });
+        const result = call(version, returnArguments, ...args);
         assert.equal(JSON.stringify(result), JSON.stringify(args));
       };
     });
   });
-  describe.only('no export', function () {
+  describe('no export', function () {
     addTests(function (version) {
       return function () {
         this.timeout(20000);
         const noExport = path.join(DATA, 'noExport.js');
-        const result = call(noExport, version);
+        const result = call(version, noExport);
         assert.ok(result);
         assert.equal(keys(result).length, 0);
       };
@@ -56,7 +56,7 @@ describe('node-version-call', function () {
         this.timeout(20000);
         const noExport = path.join(DATA, 'throwError.js');
         try {
-          call(noExport, version);
+          call(version, noExport);
           assert.ok(false);
         } catch (err) {
           assert.equal(err.message, 'boom');
