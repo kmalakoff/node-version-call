@@ -15,7 +15,8 @@ function call(version, filePath /* arguments */ ) {
         var workerData = {
             filePath: filePath,
             args: args,
-            env: process.env
+            env: process.env,
+            cwd: process.cwd()
         };
         mkdirp.sync(path.dirname(input));
         fs.writeFileSync(input, JSONBuffer.stringify(workerData));

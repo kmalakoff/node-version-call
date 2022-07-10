@@ -1,5 +1,5 @@
 const path = require('path');
-const cp = require('child_process')
+const cp = require('child_process');
 const fs = require('fs');
 const tmpdir = require('os').tmpdir || require('os-shim').tmpdir;
 const suffix = require('temp-suffix');
@@ -29,14 +29,14 @@ export default function call(version: string, filePath: string /* arguments */):
     const output = path.join(temp, suffix('output'));
 
     // store data to a file
-    const workerData = { filePath, args, env: process.env };
+    const workerData = { filePath, args, env: process.env, cwd: process.cwd() };
     mkdirp.sync(path.dirname(input));
     fs.writeFileSync(input, JSONBuffer.stringify(workerData));
     unlinkSafe(output);
 
     // call the function
     const execPath = versionExecPath(version);
-    const worker = path.join(__dirname, 'worker.js');      
+    const worker = path.join(__dirname, 'worker.js');
     cp.exec(`"${execPath}" "${worker}" "${input}" "${output}"`);
     while (!fs.existsSync(output)) {
       sleep(50);
