@@ -1,22 +1,15 @@
 const path = require('path');
+const cp = require('child_process')
 const fs = require('fs');
 const tmpdir = require('os').tmpdir || require('os-shim').tmpdir;
 const suffix = require('temp-suffix');
-const spawnSync = require('cross-spawn-cb').sync;
 const JSONBuffer = require('json-buffer');
 const mkdirp = require('mkdirp');
-const callFn = require('./callFn');
 const shortHash = require('short-hash');
+const sleep = require('thread-sleep-compat');
 
-export interface JSONObject {
-  [x: string]: any;
-}
-export type CallOptions = {
-  args?: any[];
-  env?: JSONObject;
-};
-
-const localCallFile = path.join(__dirname, 'localCall.js');
+const versionExecPath = require('./versionExecPath');
+const callFn = require('./callFn');
 
 function unlinkSafe(filename) {
   try {
@@ -26,8 +19,8 @@ function unlinkSafe(filename) {
   }
 }
 
-export default function call(filePath: string, version: string, options: CallOptions = {}): any {
-  const args = options.args || [];
+export default function call(version: string, filePath: string /* arguments */): any {
+  const args = Array.prototype.slice.call(arguments, 2);
   let res;
   if (version === 'local') res = callFn(filePath, args);
   else {
@@ -36,17 +29,17 @@ export default function call(filePath: string, version: string, options: CallOpt
     const output = path.join(temp, suffix('output'));
 
     // store data to a file
-    const callData = { filePath, args };
+    const workerData = { filePath, args, env: process.env };
     mkdirp.sync(path.dirname(input));
-    fs.writeFileSync(input, JSONBuffer.stringify(callData));
+    fs.writeFileSync(input, JSONBuffer.stringify(workerData));
     unlinkSafe(output);
 
     // call the function
-    const env = options.env || process.env;
-    try {
-      spawnSync('nvu', [version, 'node', localCallFile, input, output], { env, stdio: 'string' });
-    } catch (err) {
-      if (err.stderr.indexOf('ExperimentalWarning') < 0) throw err;
+    const execPath = versionExecPath(version);
+    const worker = path.join(__dirname, 'worker.js');      
+    cp.exec(`"${execPath}" "${worker}" "${input}" "${output}"`);
+    while (!fs.existsSync(output)) {
+      sleep(50);
     }
 
     // get data and clean up
