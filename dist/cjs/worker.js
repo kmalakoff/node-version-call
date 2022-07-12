@@ -1,20 +1,37 @@
 "use strict";
+require("./polyfills");
 var fs = require("fs");
-var JSONBuffer = require("json-buffer");
-var assign = require("just-extend");
-var callFn = require("./callFn");
-// get data
+var serialize = require("serialize-javascript");
 var input = process.argv[2];
 var output = process.argv[3];
-var callData = JSONBuffer.parse(fs.readFileSync(input, "utf8"));
-// set up env
-if (process.cwd() !== callData.cwd) process.chdir(callData.cwd);
-for(var key in process.env)delete process.env[key];
-assign(process.env, callData.env);
-// call function
-var result = callFn(callData.filePath, callData.args);
-fs.writeFile(output + ".tmp", JSON.stringify(result), function() {
-    fs.rename(output + ".tmp", output, function() {
-        process.exit(0);
+function writeResult(result) {
+    fs.writeFile(output + ".tmp", serialize(result, {
+        unsafe: true
+    }, "utf8"), function() {
+        fs.rename(output + ".tmp", output, function() {
+            process.exit(0);
+        });
     });
-});
+}
+// get data
+try {
+    var workerData = eval("(".concat(fs.readFileSync(input, "utf8"), ")"));
+    // set up env
+    if (process.cwd() !== workerData.cwd) process.chdir(workerData.cwd);
+    for(var key in workerData.env){
+        if (process.env[key] !== undefined) process.env[key] = workerData.env[key];
+    }
+    // call function
+    var fn = require(workerData.filePath);
+    var value = typeof fn == "function" ? fn.apply(null, workerData.args) : fn;
+    writeResult({
+        value: value
+    });
+} catch (err) {
+    writeResult({
+        error: {
+            message: err.message,
+            stack: err.stack
+        }
+    });
+}
