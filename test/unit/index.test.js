@@ -32,7 +32,16 @@ describe('node-version-call', function () {
     addTests(function (version) {
       return function () {
         this.timeout(20000);
-        const args = [{ field2: 1 }, 1];
+        const args = [
+          { field2: 1 },
+          1,
+          function hey() {
+            return null;
+          },
+          new URL('https://hello.com'),
+          new Map(),
+          new Set(),
+        ];
         const returnArguments = path.join(DATA, 'returnArguments.js');
         const result = call(version, returnArguments, ...args);
         assert.equal(JSON.stringify(result), JSON.stringify(args));

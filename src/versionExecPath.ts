@@ -1,18 +1,15 @@
 const path = require('path');
-const spawnSync = require('cross-spawn-cb').sync;
 const resolveVersion = require('node-resolve-versions');
-const versionUse = require('node-version-use');
 const accessSync = require('fs-access-sync-compat');
 
-const isWindows = process.platform === 'win32';
-const NODE = isWindows ? 'node.exe' : 'node';
+const constants = require('./constants');
 
 export default function versionExecPath(version) {
   const versions = resolveVersion.sync(version);
   if (versions.length > 1) throw new Error('Multiple versions match: ' + version + ' = ' + versions.join(',') + '. Please be specific');
-  const installPath = path.join(versionUse.installDirectory(), versions[0]);
-  const binRoot = isWindows ? installPath : path.join(installPath, 'bin');
-  const execPath = path.join(binRoot, NODE);
+  const installPath = path.join(constants.installDirectory, versions[0]);
+  const binRoot = constants.isWindows ? installPath : path.join(installPath, 'bin');
+  const execPath = path.join(binRoot, constants.node);
 
   try {
     // ensure installed
@@ -20,7 +17,7 @@ export default function versionExecPath(version) {
   } catch (err) {
     // need to install
     try {
-      spawnSync('nvu', [versions[0], NODE, '--version'], { stdio: 'string' });
+      require('cross-spawn-cb').sync('nvu', [versions[0], constants.node, '--version'], { stdio: 'string' });
     } catch (err) {
       if (!err.stderr || err.stderr.indexOf('ExperimentalWarning') < 0) throw err;
     }
