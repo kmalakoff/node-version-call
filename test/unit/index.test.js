@@ -14,12 +14,23 @@ function addTests(fn) {
 }
 
 describe('node-version-call', function () {
-  describe('process result', function () {
+  describe('no export', function () {
     addTests(function (version) {
       return function () {
         this.timeout(20000);
-        const processVersion = path.join(DATA, 'processVersion.js');
-        const result = call(version, processVersion);
+        const fnPath = path.join(DATA, 'noExport.js');
+        const result = call(version, fnPath);
+        assert.equal(keys(result).length, 0);
+      };
+    });
+  });
+
+  describe('process version', function () {
+    addTests(function (version) {
+      return function () {
+        this.timeout(20000);
+        const fnPath = path.join(DATA, 'processVersion.js');
+        const result = call(version, fnPath);
         if (version === 'local') assert.equal(result, process.version);
         else if (version === 'lts') {
           assert.equal(result[0], 'v');
@@ -28,7 +39,8 @@ describe('node-version-call', function () {
       };
     });
   });
-  describe('arguments', function () {
+
+  describe('return arguments', function () {
     addTests(function (version) {
       return function () {
         this.timeout(20000);
@@ -42,30 +54,20 @@ describe('node-version-call', function () {
           new Map(),
           new Set(),
         ];
-        const returnArguments = path.join(DATA, 'returnArguments.js');
-        const result = call(version, returnArguments, ...args);
+        const fnPath = path.join(DATA, 'returnArguments.js');
+        const result = call(version, fnPath, ...args);
         assert.equal(JSON.stringify(result), JSON.stringify(args));
       };
     });
   });
-  describe('no export', function () {
+
+  describe('throw error', function () {
     addTests(function (version) {
       return function () {
         this.timeout(20000);
-        const noExport = path.join(DATA, 'noExport.js');
-        const result = call(version, noExport);
-        assert.ok(result);
-        assert.equal(keys(result).length, 0);
-      };
-    });
-  });
-  describe('errors', function () {
-    addTests(function (version) {
-      return function () {
-        this.timeout(20000);
-        const noExport = path.join(DATA, 'throwError.js');
+        const fnPath = path.join(DATA, 'throwError.js');
         try {
-          call(version, noExport);
+          call(version, fnPath);
           assert.ok(false);
         } catch (err) {
           assert.equal(err.message, 'boom');
