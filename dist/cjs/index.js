@@ -5,61 +5,48 @@ Object.defineProperty(exports, "__esModule", {
 module.exports = call;
 function call(version, filePath /* arguments */ ) {
     var args = Array.prototype.slice.call(arguments, 2);
-    var workerData = {
-        filePath: filePath,
-        args: args,
-        env: process.env,
-        cwd: process.cwd()
-    };
     // local - just call
     if (version === "local") {
-        var fn = require(workerData.filePath);
-        return typeof fn == "function" ? fn.apply(null, workerData.args) : fn;
+        var fn = require(filePath);
+        return typeof fn == "function" ? fn.apply(null, args) : fn;
+    } else {
+        var execPath = versionExecPath(version);
+        return functionExec.apply(void 0, [
+            {
+                execPath: execPath,
+                env: process.env,
+                cwd: process.cwd(),
+                sleep: SLEEP_MS
+            },
+            filePath
+        ].concat(_toConsumableArray(args)));
     }
-    var temp = path.join(tmpdir(), "node-version-call", shortHash(process.cwd()));
-    var input = path.join(temp, suffix("input"));
-    var output = path.join(temp, suffix("output"));
-    // store data to a file
-    mkdirp.sync(path.dirname(input));
-    fs.writeFileSync(input, serialize(workerData, {
-        unsafe: true
-    }), "utf8");
-    unlinkSafe(output);
-    // call the function
-    var execPath = versionExecPath(version);
-    var worker = path.join(__dirname, "worker.js");
-    cp.exec('"'.concat(execPath, '" "').concat(worker, '" "').concat(input, '" "').concat(output, '"'));
-    while(!fs.existsSync(output)){
-        sleep(SLEEP_MS);
-    }
-    // get data and clean up
-    var res = eval("(".concat(fs.readFileSync(output, "utf8"), ")"));
-    unlinkSafe(input);
-    unlinkSafe(output);
-    // throw error from the worker
-    if (res.error) {
-        var err = new Error(res.error.message);
-        if (res.error.stack) err.stack = res.error.stack;
-        throw err;
-    }
-    return res.value;
 }
-require("./polyfills.js");
-var path = require("path");
-var cp = require("child_process");
-var fs = require("fs");
-var tmpdir = require("os").tmpdir || require("os-shim").tmpdir;
-var suffix = require("temp-suffix");
-var serialize = require("serialize-javascript");
-var mkdirp = require("mkdirp");
-var shortHash = require("short-hash");
-var sleep = require("thread-sleep-compat");
+function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+    for(var i = 0, arr2 = new Array(len); i < len; i++)arr2[i] = arr[i];
+    return arr2;
+}
+function _arrayWithoutHoles(arr) {
+    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+}
+function _iterableToArray(iter) {
+    if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+}
+function _nonIterableSpread() {
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+function _toConsumableArray(arr) {
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+}
+function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(n);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+}
+var functionExec = require("function-exec-sync");
 var versionExecPath = require("./versionExecPath.js");
 var SLEEP_MS = 60;
-function unlinkSafe(filename) {
-    try {
-        fs.unlinkSync(filename);
-    } catch (e) {
-    // skip
-    }
-}

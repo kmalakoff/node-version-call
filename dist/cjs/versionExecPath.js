@@ -20,7 +20,7 @@ function versionExecPath(version) {
                 constants.node,
                 "--version"
             ], {
-                stdio: "string"
+                encoding: "utf8"
             });
         } catch (err1) {
             if (!err1.stderr || err1.stderr.indexOf("ExperimentalWarning") < 0) throw err1;
