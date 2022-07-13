@@ -17,7 +17,7 @@ export default function versionExecPath(version) {
   } catch (err) {
     // need to install
     try {
-      require('cross-spawn-cb').sync('nvu', [versions[0], constants.node, '--version'], { stdio: 'string' });
+      require('cross-spawn-cb').sync('nvu', [versions[0], constants.node, '--version'], { encoding: 'utf8' });
     } catch (err) {
       if (!err.stderr || err.stderr.indexOf('ExperimentalWarning') < 0) throw err;
     }
