@@ -14,6 +14,17 @@ function addTests(fn) {
 }
 
 describe('node-version-call', function () {
+  describe('callbacks', function () {
+    addTests(function (version) {
+      return function () {
+        this.timeout(20000);
+        const fnPath = path.join(DATA, 'callbacks.js');
+        const result = call({version, callbacks: true}, fnPath, 'arg1');
+        assert.equal(result, 'arg1');
+      };
+    });
+  });
+
   describe('no export', function () {
     addTests(function (version) {
       return function () {
