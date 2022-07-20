@@ -67,9 +67,9 @@
   "dependencies": {
     "cross-spawn-cb": "^0.6.4",
     "fs-access-sync-compat": "^1.0.1",
-    "function-exec-sync": "^0.2.2",
+    "function-exec-sync": "^0.2.4",
     "node-resolve-versions": "^0.3.1",
-    "node-version-use": "^0.3.0",
+    "node-version-use": "^0.3.1",
     "osenv": "^0.1.5"
   }
 }
