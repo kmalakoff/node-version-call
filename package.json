@@ -1,7 +1,7 @@
 {
   "name": "node-version-call",
   "description": "Call a function in a specific version of node",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "author": {
     "email": "kmalakoff@gmail.com",
     "name": "Kevin Malakoff",
@@ -52,7 +52,7 @@
     "@types/node": "^18.0.6",
     "is-version": "^0.2.0",
     "lodash.keys": "^4.2.0",
-    "ts-dev-stack": "^0.6.11"
+    "ts-dev-stack": "^0.6.12"
   },
   "engines": {
     "node": ">=0.8"
