@@ -1,7 +1,7 @@
 {
   "name": "node-version-call",
   "description": "Call a function in a specific version of node",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "author": {
     "email": "kmalakoff@gmail.com",
     "name": "Kevin Malakoff",
