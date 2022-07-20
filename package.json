@@ -52,7 +52,7 @@
     "@types/node": "^18.0.6",
     "is-version": "^0.2.0",
     "lodash.keys": "^4.2.0",
-    "ts-dev-stack": "^0.6.10"
+    "ts-dev-stack": "^0.6.11"
   },
   "engines": {
     "node": ">=0.8"
@@ -68,8 +68,8 @@
     "cross-spawn-cb": "^0.6.4",
     "fs-access-sync-compat": "^1.0.1",
     "function-exec-sync": "^0.2.2",
-    "node-resolve-versions": "^0.3.0",
-    "node-version-use": "^0.2.7",
+    "node-resolve-versions": "^0.3.1",
+    "node-version-use": "^0.3.0",
     "osenv": "^0.1.5"
   }
 }
