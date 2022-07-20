@@ -1,34 +1,7 @@
 {
   "name": "node-version-call",
-  "description": "Call a function in a specific version of node",
   "version": "0.2.7",
-  "author": {
-    "email": "kmalakoff@gmail.com",
-    "name": "Kevin Malakoff",
-    "url": "https://github.com/kmalakoff"
-  },
-  "license": "MIT",
-  "main": "dist/cjs/index.js",
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "tsds build",
-    "deploy": "tsds deploy",
-    "format": "tsds format",
-    "lint": "tsds lint",
-    "test": "tsds test:node",
-    "test:engines": "nvu engines tsds test:node",
-    "version": "tsds version"
-  },
-  "homepage": "https://github.com/node-version-call#README.md",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/node-version-call.git"
-  },
-  "bugs": {
-    "url": "https://github.com/node-version-call/issues"
-  },
+  "description": "Call a function in a specific version of node",
   "keywords": [
     "apis",
     "batch",
@@ -48,6 +21,42 @@
     "parts",
     "typescript"
   ],
+  "homepage": "https://github.com/node-version-call#README.md",
+  "bugs": {
+    "url": "https://github.com/node-version-call/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/node-version-call.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Kevin Malakoff",
+    "email": "kmalakoff@gmail.com",
+    "url": "https://github.com/kmalakoff"
+  },
+  "main": "dist/cjs/index.js",
+  "types": "dist/types/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsds build",
+    "deploy": "tsds deploy",
+    "format": "tsds format",
+    "lint": "tsds lint",
+    "test": "tsds test:node",
+    "test:engines": "nvu engines tsds test:node",
+    "version": "tsds version"
+  },
+  "dependencies": {
+    "cross-spawn-cb": "^0.6.4",
+    "fs-access-sync-compat": "^1.0.1",
+    "function-exec-sync": "^0.2.4",
+    "node-resolve-versions": "^0.3.1",
+    "node-version-use": "^0.3.1",
+    "osenv": "^0.1.5"
+  },
   "devDependencies": {
     "@types/node": "^18.0.6",
     "is-version": "^0.2.0",
@@ -62,14 +71,5 @@
     "targets": [
       "cjs"
     ]
-  },
-  "types": "dist/types/index.d.ts",
-  "dependencies": {
-    "cross-spawn-cb": "^0.6.4",
-    "fs-access-sync-compat": "^1.0.1",
-    "function-exec-sync": "^0.2.4",
-    "node-resolve-versions": "^0.3.1",
-    "node-version-use": "^0.3.1",
-    "osenv": "^0.1.5"
   }
 }
