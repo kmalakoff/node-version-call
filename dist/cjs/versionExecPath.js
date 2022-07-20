@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 module.exports = versionExecPath;
 function versionExecPath(version) {
+    if (!resolveVersion) resolveVersion = require("node-resolve-versions"); // break dependencies
     var versions = resolveVersion.sync(version);
     if (versions.length > 1) throw new Error("Multiple versions match: " + version + " = " + versions.join(",") + ". Please be specific");
     var installPath = path.join(constants.installDirectory, versions[0]);
@@ -29,6 +30,6 @@ function versionExecPath(version) {
     return execPath;
 }
 var path = require("path");
-var resolveVersion = require("node-resolve-versions");
 var accessSync = require("fs-access-sync-compat");
 var constants = require("./constants");
+var resolveVersion = null; // break dependencies

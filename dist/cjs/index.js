@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 module.exports = call;
 function call(version, filePath /* arguments */ ) {
+    if (!functionExec) functionExec = require("function-exec-sync"); // break dependencies
     var args = Array.prototype.slice.call(arguments, 2);
     var callbacks = false;
     if (typeof version !== "string") {
@@ -31,6 +32,6 @@ function call(version, filePath /* arguments */ ) {
         ].concat(args));
     }
 }
-var functionExec = require("function-exec-sync");
 var versionExecPath = require("./versionExecPath.js");
 var SLEEP_MS = 60;
+var functionExec = null; // break dependencies

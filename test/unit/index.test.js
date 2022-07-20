@@ -19,7 +19,7 @@ describe('node-version-call', function () {
       return function () {
         this.timeout(20000);
         const fnPath = path.join(DATA, 'callbacks.js');
-        const result = call({version, callbacks: true}, fnPath, 'arg1');
+        const result = call({ version, callbacks: true }, fnPath, 'arg1');
         assert.equal(result, 'arg1');
       };
     });
