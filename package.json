@@ -50,10 +50,10 @@
     "version": "tsds version"
   },
   "dependencies": {
-    "cross-spawn-cb": "^0.6.4",
+    "cross-spawn-cb": "^0.6.5",
     "fs-access-sync-compat": "^1.0.1",
     "function-exec-sync": "^0.2.4",
-    "node-resolve-versions": "^0.3.1",
+    "node-resolve-versions": "^0.3.2",
     "node-version-use": "^0.3.1",
     "osenv": "^0.1.5"
   },
@@ -61,7 +61,7 @@
     "@types/node": "^18.0.6",
     "is-version": "^0.2.0",
     "lodash.keys": "^4.2.0",
-    "ts-dev-stack": "^0.6.12"
+    "ts-dev-stack": "^0.6.13"
   },
   "engines": {
     "node": ">=0.8"
