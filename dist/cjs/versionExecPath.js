@@ -2,34 +2,42 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-module.exports = versionExecPath;
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return versionExecPath;
+    }
+});
+var path = require("path");
+var accessSync = require("fs-access-sync-compat");
+var constants = require("./constants");
+var SLEEP_MS = 200;
+var installVersion = __dirname + "/installVersion.js";
+var resolveVersion = null; // break dependencies
 function versionExecPath(version) {
     if (!resolveVersion) resolveVersion = require("node-resolve-versions"); // break dependencies
-    var versions = resolveVersion.sync(version);
+    var versions = require("node-resolve-versions").sync(version);
     if (versions.length > 1) throw new Error("Multiple versions match: " + version + " = " + versions.join(",") + ". Please be specific");
     var installPath = path.join(constants.installDirectory, versions[0]);
     var binRoot = constants.isWindows ? installPath : path.join(installPath, "bin");
     var execPath = path.join(binRoot, constants.node);
     try {
-        // ensure installed
-        accessSync(installPath);
+        // check installed
+        accessSync(execPath);
     } catch (err) {
         // need to install
-        try {
-            require("cross-spawn-cb").sync("nvu", [
-                versions[0],
-                constants.node,
-                "--version"
-            ], {
-                encoding: "utf8"
-            });
-        } catch (err1) {
-            if (!err1.stderr || err1.stderr.indexOf("ExperimentalWarning") < 0) throw err1;
-        }
+        require("function-exec-sync")({
+            cwd: process.cwd(),
+            sleep: SLEEP_MS,
+            callbacks: true
+        }, installVersion, versions[0]);
+        accessSync(execPath);
     }
     return execPath;
 }
-var path = require("path");
-var accessSync = require("fs-access-sync-compat");
-var constants = require("./constants");
-var resolveVersion = null; // break dependencies
+
+if ((typeof exports.default === 'function' || (typeof exports.default === 'object' && exports.default !== null)) && typeof exports.default.__esModule === 'undefined') {
+  Object.defineProperty(exports.default, '__esModule', { value: true });
+  for (var key in exports) exports.default[key] = exports[key];
+  module.exports = exports.default;
+}

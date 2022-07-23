@@ -2,7 +2,15 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-module.exports = call;
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return call;
+    }
+});
+var versionExecPath = require("./versionExecPath.js");
+var SLEEP_MS = 60;
+var functionExec = null; // break dependencies
 function call(version, filePath /* arguments */ ) {
     if (!functionExec) functionExec = require("function-exec-sync"); // break dependencies
     var args = Array.prototype.slice.call(arguments, 2);
@@ -32,6 +40,9 @@ function call(version, filePath /* arguments */ ) {
         ].concat(args));
     }
 }
-var versionExecPath = require("./versionExecPath.js");
-var SLEEP_MS = 60;
-var functionExec = null; // break dependencies
+
+if ((typeof exports.default === 'function' || (typeof exports.default === 'object' && exports.default !== null)) && typeof exports.default.__esModule === 'undefined') {
+  Object.defineProperty(exports.default, '__esModule', { value: true });
+  for (var key in exports) exports.default[key] = exports[key];
+  module.exports = exports.default;
+}
