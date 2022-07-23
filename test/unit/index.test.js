@@ -17,7 +17,7 @@ describe('node-version-call', function () {
   describe('callbacks', function () {
     addTests(function (version) {
       return function () {
-        this.timeout(20000);
+        this.timeout(200000);
         const fnPath = path.join(DATA, 'callbacks.js');
         const result = call({ version, callbacks: true }, fnPath, 'arg1');
         assert.equal(result, 'arg1');
@@ -28,7 +28,7 @@ describe('node-version-call', function () {
   describe('no export', function () {
     addTests(function (version) {
       return function () {
-        this.timeout(20000);
+        this.timeout(200000);
         const fnPath = path.join(DATA, 'noExport.js');
         const result = call(version, fnPath);
         assert.equal(keys(result).length, 0);
@@ -39,7 +39,7 @@ describe('node-version-call', function () {
   describe('process version', function () {
     addTests(function (version) {
       return function () {
-        this.timeout(20000);
+        this.timeout(200000);
         const fnPath = path.join(DATA, 'processVersion.js');
         const result = call(version, fnPath);
         if (version === 'local') assert.equal(result, process.version);
@@ -54,7 +54,7 @@ describe('node-version-call', function () {
   describe('return arguments', function () {
     addTests(function (version) {
       return function () {
-        this.timeout(20000);
+        this.timeout(200000);
         const args = [
           { field2: 1 },
           1,
@@ -75,7 +75,7 @@ describe('node-version-call', function () {
   describe('throw error', function () {
     addTests(function (version) {
       return function () {
-        this.timeout(20000);
+        this.timeout(200000);
         const fnPath = path.join(DATA, 'throwError.js');
         try {
           call(version, fnPath);

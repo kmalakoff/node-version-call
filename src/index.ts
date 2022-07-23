@@ -1,13 +1,13 @@
 const versionExecPath = require('./versionExecPath.ts');
 
 const SLEEP_MS = 60;
-let functionExec = null; // break dependencies
 
 export type VersionInfo = {
   version: string;
   callbacks: boolean;
 };
 
+let functionExec = null; // break dependencies
 export default function call(version: string | VersionInfo, filePath: string /* arguments */): any {
   if (!functionExec) functionExec = require('function-exec-sync'); // break dependencies
 
