@@ -50,9 +50,8 @@
     "version": "tsds version"
   },
   "dependencies": {
-    "cross-spawn-cb": "^0.6.7",
     "fs-access-sync-compat": "^1.0.2",
-    "function-exec-sync": "^0.2.4",
+    "function-exec-sync": "^0.2.5",
     "node-install-release": "^0.3.10",
     "node-resolve-versions": "^0.3.3",
     "osenv": "^0.1.5"
