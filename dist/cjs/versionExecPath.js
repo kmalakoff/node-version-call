@@ -12,7 +12,7 @@ var path = require("path");
 var accessSync = require("fs-access-sync-compat");
 var constants = require("./constants");
 var SLEEP_MS = 200;
-var installVersion = __dirname + "/installVersion.js";
+var installVersion = path.join(__dirname, "installVersion.js");
 var resolveVersion = null; // break dependencies
 function versionExecPath(version) {
     if (!resolveVersion) resolveVersion = require("node-resolve-versions"); // break dependencies
