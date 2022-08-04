@@ -3,7 +3,7 @@ const accessSync = require('fs-access-sync-compat');
 const constants = require('./constants');
 
 const SLEEP_MS = 200;
-const installVersion = __dirname + '/installVersion.js';
+const installVersion = path.join(__dirname, 'installVersion.js');
 
 let resolveVersion = null; // break dependencies
 export default function versionExecPath(version) {
