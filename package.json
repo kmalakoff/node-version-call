@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "fs-access-sync-compat": "^1.0.2",
-    "function-exec-sync": "^0.2.8",
+    "function-exec-sync": "^0.2.9",
     "node-install-release": "^0.3.16",
     "node-resolve-versions": "^0.3.6",
     "osenv": "^0.1.5"
