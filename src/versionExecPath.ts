@@ -6,12 +6,15 @@ const SLEEP_MS = 200;
 const installVersion = path.join(__dirname, 'installVersion.js');
 
 let resolveVersion = null; // break dependencies
-export default function versionExecPath(version) {
+let execFunction = null; // break dependencies
+export default function versionExecPath(versionString: string) {
   if (!resolveVersion) resolveVersion = require('node-resolve-versions'); // break dependencies
+  if (!execFunction) execFunction = require('function-exec-sync'); // break dependencies
 
-  const versions = require('node-resolve-versions').sync(version);
-  if (versions.length > 1) throw new Error('Multiple versions match: ' + version + ' = ' + versions.join(',') + '. Please be specific');
-  const installPath = path.join(constants.installDirectory, versions[0]);
+  const versions = resolveVersion.sync(versionString);
+  if (versions.length > 1) throw new Error('Multiple versions match: ' + versionString + ' = ' + versions.join(',') + '. Please be specific');
+  const version = versions[0];
+  const installPath = path.join(constants.installDirectory, version);
   const binRoot = constants.isWindows ? installPath : path.join(installPath, 'bin');
   const execPath = path.join(binRoot, constants.node);
 
@@ -20,7 +23,7 @@ export default function versionExecPath(version) {
     accessSync(execPath);
   } catch (err) {
     // need to install
-    require('function-exec-sync')({ cwd: process.cwd(), sleep: SLEEP_MS, callbacks: true }, installVersion, versions[0]);
+    execFunction({ cwd: process.cwd(), sleep: SLEEP_MS, callbacks: true }, installVersion, version);
     accessSync(execPath);
   }
   return execPath;
