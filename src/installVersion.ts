@@ -9,7 +9,7 @@ try {
   installRelease = require('node-install-release');
   constants = require('./constants');
 } catch (_err) {
-  err = err;
+  err = _err;
 }
 
 export default function installVersion(version: string, callback: (error?: Error) => void): void {
