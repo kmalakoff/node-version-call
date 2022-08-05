@@ -8,20 +8,10 @@ Object.defineProperty(exports, "default", {
         return installVersion;
     }
 });
-var path = null;
-var installRelease = null;
-var constants = null;
-var err = null;
-// TODO: remove debug code
-try {
-    path = require("path");
-    installRelease = require("node-install-release");
-    constants = require("./constants");
-} catch (_err) {
-    err = _err;
-}
+var path = require("path");
+var installRelease = require("node-install-release");
+var constants = require("./constants");
 function installVersion(version, callback) {
-    if (err) return callback(new Error("Failed to load modules" + err.message));
     var installPath = path.join(constants.installDirectory, version);
     installRelease(version, installPath, {
         cacheDirectory: constants.cacheDirectory,

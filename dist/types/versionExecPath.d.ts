@@ -1,1 +1,1 @@
-export default function versionExecPath(version: any): any;
+export default function versionExecPath(versionString: string): any;

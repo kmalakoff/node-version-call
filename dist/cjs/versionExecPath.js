@@ -14,11 +14,14 @@ var constants = require("./constants");
 var SLEEP_MS = 200;
 var installVersion = path.join(__dirname, "installVersion.js");
 var resolveVersion = null; // break dependencies
-function versionExecPath(version) {
+var execFunction = null; // break dependencies
+function versionExecPath(versionString) {
     if (!resolveVersion) resolveVersion = require("node-resolve-versions"); // break dependencies
-    var versions = require("node-resolve-versions").sync(version);
-    if (versions.length > 1) throw new Error("Multiple versions match: " + version + " = " + versions.join(",") + ". Please be specific");
-    var installPath = path.join(constants.installDirectory, versions[0]);
+    if (!execFunction) execFunction = require("function-exec-sync"); // break dependencies
+    var versions = resolveVersion.sync(versionString);
+    if (versions.length > 1) throw new Error("Multiple versions match: " + versionString + " = " + versions.join(",") + ". Please be specific");
+    var version = versions[0];
+    var installPath = path.join(constants.installDirectory, version);
     var binRoot = constants.isWindows ? installPath : path.join(installPath, "bin");
     var execPath = path.join(binRoot, constants.node);
     try {
@@ -26,11 +29,11 @@ function versionExecPath(version) {
         accessSync(execPath);
     } catch (err) {
         // need to install
-        require("function-exec-sync")({
+        execFunction({
             cwd: process.cwd(),
             sleep: SLEEP_MS,
             callbacks: true
-        }, installVersion, versions[0]);
+        }, installVersion, version);
         accessSync(execPath);
     }
     return execPath;
