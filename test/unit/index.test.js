@@ -6,7 +6,7 @@ const keys = require('lodash.keys');
 const path = require('path');
 const DATA = path.resolve(__dirname, '..', 'data');
 
-const versions = ['local', '0.8.28', 'lts'];
+const versions = ['local', '0.8.28', '12', 'lts'];
 function addTests(fn) {
   for (let i = 0; i < versions.length; i++) {
     it('can call on ' + versions[i], fn(versions[i]));
@@ -41,11 +41,23 @@ describe('node-version-call', function () {
       return function () {
         const fnPath = path.join(DATA, 'processVersion.js');
         const result = call(version, fnPath);
-        if (version === 'local') assert.equal(result, process.version);
-        else if (version === 'lts') {
-          assert.equal(result[0], 'v');
-          assert.ok(isVersion(result.slice(1)));
-        } else assert.equal(result, 'v' + version);
+
+        switch (version) {
+          case 'local':
+            assert.equal(result, process.version);
+            break;
+          case 'lts':
+            assert.equal(result[0], 'v');
+            assert.ok(isVersion(result.slice(1)));
+            break;
+          case '12':
+            assert.equal(result.indexOf('v' + version), 0);
+            assert.ok(isVersion(result.slice(1)));
+            break;
+          default:
+            assert.equal(result, 'v' + version);
+            break;
+        }
       };
     });
   });
