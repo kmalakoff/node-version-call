@@ -18,7 +18,7 @@ try {
     installRelease = require("node-install-release");
     constants = require("./constants");
 } catch (_err) {
-    err = err;
+    err = _err;
 }
 function installVersion(version, callback) {
     if (err) return callback(new Error("Failed to load modules" + err.message));
