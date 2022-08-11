@@ -1,6 +1,6 @@
 ## node-version-call
 
-Call a function in a specific version of node for browser and node
+Call a function in a specific version of node
 
 ### Example 1
 
