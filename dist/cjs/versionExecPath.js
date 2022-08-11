@@ -11,6 +11,7 @@ Object.defineProperty(exports, "default", {
 var path = require("path");
 var accessSync = require("fs-access-sync-compat");
 var constants = require("./constants");
+var existsSync = require("./existsSync");
 var SLEEP_MS = 200;
 var installVersion = path.join(__dirname, "installVersion.js");
 var resolveVersion = null; // break dependencies
@@ -24,17 +25,14 @@ function versionExecPath(versionString) {
     var installPath = path.join(constants.installDirectory, version);
     var binRoot = constants.isWindows ? installPath : path.join(installPath, "bin");
     var execPath = path.join(binRoot, constants.node);
-    try {
-        // check installed
-        accessSync(execPath);
-    } catch (err) {
-        // need to install
+    // need to install
+    if (!existsSync(execPath)) {
         execFunction({
             cwd: process.cwd(),
             sleep: SLEEP_MS,
             callbacks: true
         }, installVersion, version);
-        accessSync(execPath);
+        accessSync(execPath); // confirm installed
     }
     return execPath;
 }
