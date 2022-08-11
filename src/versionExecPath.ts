@@ -1,6 +1,8 @@
 const path = require('path');
 const accessSync = require('fs-access-sync-compat');
+
 const constants = require('./constants');
+const existsSync = require('./existsSync');
 
 const SLEEP_MS = 200;
 const installVersion = path.join(__dirname, 'installVersion.js');
@@ -18,13 +20,10 @@ export default function versionExecPath(versionString: string) {
   const binRoot = constants.isWindows ? installPath : path.join(installPath, 'bin');
   const execPath = path.join(binRoot, constants.node);
 
-  try {
-    // check installed
-    accessSync(execPath);
-  } catch (err) {
-    // need to install
+  // need to install
+  if (!existsSync(execPath)) {
     execFunction({ cwd: process.cwd(), sleep: SLEEP_MS, callbacks: true }, installVersion, version);
-    accessSync(execPath);
+    accessSync(execPath); // confirm installed
   }
   return execPath;
 }
