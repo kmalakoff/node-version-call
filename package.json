@@ -52,7 +52,7 @@
   "dependencies": {
     "fs-access-sync-compat": "^1.0.2",
     "function-exec-sync": "^0.2.10",
-    "node-install-release": "^0.3.18",
+    "node-install-release": "^0.4.0",
     "node-resolve-versions": "^0.3.8",
     "osenv": "^0.1.5"
   },
