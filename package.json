@@ -52,13 +52,13 @@
   "dependencies": {
     "fs-access-sync-compat": "^1.0.2",
     "function-exec-sync": "^0.2.10",
-    "node-install-release": "^0.3.17",
-    "node-resolve-versions": "^0.3.7",
+    "node-install-release": "^0.3.18",
+    "node-resolve-versions": "^0.3.8",
     "osenv": "^0.1.5"
   },
   "devDependencies": {
     "@types/mocha": "^9.1.1",
-    "@types/node": "^18.7.1",
+    "@types/node": "^18.7.2",
     "is-version": "^0.2.1",
     "lodash.keys": "^4.2.0",
     "ts-dev-stack": "^0.8.7"
