@@ -57,7 +57,7 @@
     "osenv": "^0.1.5"
   },
   "devDependencies": {
-    "@types/mocha": "^9.1.1",
+    "@types/mocha": "^10.0.0",
     "@types/node": "^18.7.5",
     "is-version": "^0.2.1",
     "lodash.keys": "^4.2.0",
