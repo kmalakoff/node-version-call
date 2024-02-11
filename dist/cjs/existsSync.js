@@ -13,7 +13,7 @@ function path(path) {
     try {
         accessSync(path);
         return true;
-    } catch (err) {
+    } catch (_err) {
         return false;
     }
 }

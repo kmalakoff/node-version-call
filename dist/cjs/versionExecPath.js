@@ -20,7 +20,7 @@ function versionExecPath(versionString) {
     if (!resolveVersion) resolveVersion = require("node-resolve-versions"); // break dependencies
     if (!execFunction) execFunction = require("function-exec-sync"); // break dependencies
     var versions = resolveVersion.sync(versionString);
-    if (versions.length > 1) throw new Error("Multiple versions match: " + versionString + " = " + versions.join(",") + ". Please be specific");
+    if (versions.length > 1) throw new Error("Multiple versions match: ".concat(versionString, " = ").concat(versions.join(","), ". Please be specific"));
     var version = versions[0];
     var installPath = path.join(constants.installDirectory, version);
     var binRoot = constants.isWindows ? installPath : path.join(installPath, "bin");

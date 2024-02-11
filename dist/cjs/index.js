@@ -2,7 +2,8 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-Object.defineProperty(exports, "default", {
+Object.defineProperty(exports, // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+"default", {
     enumerable: true,
     get: function() {
         return call;
@@ -25,20 +26,20 @@ function call(version, filePath /* arguments */ ) {
     // local - just call
     if (version === "local" && !callbacks) {
         var fn = require(filePath);
-        return typeof fn == "function" ? fn.apply(null, args) : fn;
-    } else {
-        var execPath = versionExecPath(version);
-        return functionExec.apply(null, [
-            {
-                execPath: execPath,
-                env: process.env,
-                cwd: process.cwd(),
-                sleep: SLEEP_MS,
-                callbacks: callbacks
-            },
-            filePath
-        ].concat(args));
+        return typeof fn === "function" ? fn.apply(null, args) : fn;
     }
+    // call a version of node
+    var execPath = versionExecPath(version);
+    return functionExec.apply(null, [
+        {
+            execPath: execPath,
+            env: process.env,
+            cwd: process.cwd(),
+            sleep: SLEEP_MS,
+            callbacks: callbacks
+        },
+        filePath, 
+    ].concat(args));
 }
 
 if ((typeof exports.default === 'function' || (typeof exports.default === 'object' && exports.default !== null)) && typeof exports.default.__esModule === 'undefined') {
