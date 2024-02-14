@@ -14,7 +14,7 @@ export default function versionExecPath(versionString: string) {
   if (!execFunction) execFunction = require('function-exec-sync'); // break dependencies
 
   const versions = resolveVersion.sync(versionString);
-  if (versions.length > 1) throw new Error('Multiple versions match: ' + versionString + ' = ' + versions.join(',') + '. Please be specific');
+  if (versions.length > 1) throw new Error(`Multiple versions match: ${versionString} = ${versions.join(',')}. Please be specific`);
   const version = versions[0];
   const installPath = path.join(constants.installDirectory, version);
   const binRoot = constants.isWindows ? installPath : path.join(installPath, 'bin');
