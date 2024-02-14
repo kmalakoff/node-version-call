@@ -1,4 +1,0 @@
-{
-  "extends": "./node_modules/ts-dev-stack/config/.depcheckrc.json",
-  "ignores": ["node-version-call", "node-version-use", "@types/*", "@typescript-eslint/*", "eslint-*"]
-}
