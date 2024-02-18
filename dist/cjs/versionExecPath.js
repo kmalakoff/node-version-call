@@ -20,7 +20,7 @@ function versionExecPath(versionString) {
     if (!resolveVersion) resolveVersion = require("node-resolve-versions"); // break dependencies
     if (!execFunction) execFunction = require("function-exec-sync"); // break dependencies
     var versions = resolveVersion.sync(versionString);
-    if (versions.length > 1) throw new Error("Multiple versions match: " + versionString + " = " + versions.join(",") + ". Please be specific");
+    if (versions.length > 1) throw new Error("Multiple versions match: ".concat(versionString, " = ").concat(versions.join(","), ". Please be specific"));
     var version = versions[0];
     var installPath = path.join(constants.installDirectory, version);
     var binRoot = constants.isWindows ? installPath : path.join(installPath, "bin");
@@ -36,9 +36,4 @@ function versionExecPath(versionString) {
     }
     return execPath;
 }
-
-if ((typeof exports.default === 'function' || (typeof exports.default === 'object' && exports.default !== null)) && typeof exports.default.__esModule === 'undefined') {
-  Object.defineProperty(exports.default, '__esModule', { value: true });
-  for (var key in exports) exports.default[key] = exports[key];
-  module.exports = exports.default;
-}
+/* CJS INTEROP */ if (exports.__esModule && exports.default) { module.exports = exports.default; for (var key in exports) module.exports[key] = exports[key]; }
