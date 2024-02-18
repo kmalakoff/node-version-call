@@ -1,0 +1,1 @@
+ignores: ["node-version-call", "depcheck", "ts-dev-stack", "@types/*"]

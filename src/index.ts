@@ -8,10 +8,10 @@ export type VersionInfo = {
 };
 
 let functionExec = null; // break dependencies
-export default function call(version: string | VersionInfo, filePath: string /* arguments */): any {
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export default function call(version: string | VersionInfo, filePath: string, ...args): any {
   if (!functionExec) functionExec = require('function-exec-sync'); // break dependencies
 
-  const args = Array.prototype.slice.call(arguments, 2);
   let callbacks = false;
   if (typeof version !== 'string') {
     callbacks = (version as VersionInfo).callbacks ?? false;
@@ -24,12 +24,23 @@ export default function call(version: string | VersionInfo, filePath: string /* 
   // local - just call
   if (version === 'local' && !callbacks) {
     const fn = require(filePath);
-    return typeof fn == 'function' ? fn.apply(null, args) : fn;
+    return typeof fn === 'function' ? fn.apply(null, args) : fn;
   }
 
   // call a version of node
-  else {
-    const execPath = versionExecPath(version);
-    return functionExec.apply(null, [{ execPath, env: process.env, cwd: process.cwd(), sleep: SLEEP_MS, callbacks }, filePath].concat(args));
-  }
+
+  const execPath = versionExecPath(version);
+  return functionExec.apply(
+    null,
+    [
+      {
+        execPath,
+        env: process.env,
+        cwd: process.cwd(),
+        sleep: SLEEP_MS,
+        callbacks,
+      },
+      filePath,
+    ].concat(args)
+  );
 }
