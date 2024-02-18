@@ -1,8 +1,8 @@
 import assert from 'assert';
 import call from 'node-version-call';
 
-describe('exports .mjs', function () {
-  it('defaults', function () {
+describe('exports .mjs', () => {
+  it('defaults', () => {
     assert.equal(typeof call, 'function');
   });
 });
