@@ -9,9 +9,10 @@ Object.defineProperty(exports, "default", {
     }
 });
 var path = require("path");
-var installRelease = require("node-install-release");
 var constants = require("./constants");
+var installRelease = null; // break dependencies
 function installVersion(version, callback) {
+    installRelease = require("node-install-release"); // break dependencies
     var installPath = path.join(constants.installDirectory, version);
     installRelease(version, installPath, {
         cacheDirectory: constants.cacheDirectory,
