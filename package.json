@@ -45,13 +45,13 @@
     "deploy": "tsds deploy",
     "format": "biome check --apply-unsafe src/ test/",
     "test": "tsds test:node --timeout=10000",
-    "test:engines": "nvu engines tsds test:node --timeout=10000",
+    "test:engines": "nvu engines npm run test",
     "version": "tsds version"
   },
   "dependencies": {
     "fs-access-sync-compat": "^1.0.2",
     "function-exec-sync": "^0.2.11",
-    "node-install-release": "^1.1.0",
+    "node-install-release": "^1.1.1",
     "node-resolve-versions": "^0.3.10",
     "osenv": "^0.1.5"
   },
@@ -61,7 +61,7 @@
     "@types/node": "^20.11.19",
     "is-version": "^0.2.1",
     "lodash.keys": "^4.2.0",
-    "ts-dev-stack": "^0.14.1"
+    "ts-dev-stack": "^0.14.9"
   },
   "engines": {
     "node": ">=0.8"
