@@ -8,22 +8,22 @@ Object.defineProperty(exports, "default", {
         return versionExecPath;
     }
 });
-var path = require("path");
-var accessSync = require("fs-access-sync-compat");
-var constants = require("./constants");
-var existsSync = require("./existsSync");
+var path = require('path');
+var accessSync = require('fs-access-sync-compat');
+var constants = require('./constants');
+var existsSync = require('./existsSync');
 var SLEEP_MS = 200;
-var installVersion = path.join(__dirname, "installVersion.js");
+var installVersion = path.join(__dirname, 'installVersion.js');
 var resolveVersion = null; // break dependencies
 var execFunction = null; // break dependencies
 function versionExecPath(versionString) {
-    if (!resolveVersion) resolveVersion = require("node-resolve-versions"); // break dependencies
-    if (!execFunction) execFunction = require("function-exec-sync"); // break dependencies
+    if (!resolveVersion) resolveVersion = require('node-resolve-versions'); // break dependencies
+    if (!execFunction) execFunction = require('function-exec-sync'); // break dependencies
     var versions = resolveVersion.sync(versionString);
-    if (versions.length > 1) throw new Error("Multiple versions match: ".concat(versionString, " = ").concat(versions.join(","), ". Please be specific"));
+    if (versions.length > 1) throw new Error("Multiple versions match: ".concat(versionString, " = ").concat(versions.join(','), ". Please be specific"));
     var version = versions[0];
     var installPath = path.join(constants.installDirectory, version);
-    var binRoot = constants.isWindows ? installPath : path.join(installPath, "bin");
+    var binRoot = constants.isWindows ? installPath : path.join(installPath, 'bin');
     var execPath = path.join(binRoot, constants.node);
     // need to install
     if (!existsSync(execPath)) {

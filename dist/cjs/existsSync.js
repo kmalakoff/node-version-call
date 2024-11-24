@@ -8,7 +8,7 @@ Object.defineProperty(exports, "default", {
         return path;
     }
 });
-var accessSync = require("fs-access-sync-compat");
+var accessSync = require('fs-access-sync-compat');
 function path(path) {
     try {
         accessSync(path);
