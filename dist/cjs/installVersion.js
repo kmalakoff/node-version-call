@@ -8,11 +8,11 @@ Object.defineProperty(exports, "default", {
         return installVersion;
     }
 });
-var path = require("path");
-var constants = require("./constants");
+var path = require('path');
+var constants = require('./constants');
 var installRelease = null; // break dependencies
 function installVersion(version, callback) {
-    installRelease = require("node-install-release"); // break dependencies
+    installRelease = require('node-install-release'); // break dependencies
     var installPath = path.join(constants.installDirectory, version);
     installRelease(version, installPath, {
         cacheDirectory: constants.cacheDirectory,
