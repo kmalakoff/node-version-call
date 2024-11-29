@@ -1,5 +1,5 @@
 const path = require('path');
-const home = require('osenv').home();
+const home = require('homedir-polyfill')();
 
 module.exports = {
   isWindows: process.platform === 'win32',
