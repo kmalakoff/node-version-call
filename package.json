@@ -50,10 +50,10 @@
   },
   "dependencies": {
     "fs-access-sync-compat": "^1.0.2",
-    "function-exec-sync": "^0.2.11",
-    "node-install-release": "^1.3.0",
-    "node-resolve-versions": "^1.0.0",
-    "osenv": "^0.1.5"
+    "function-exec-sync": "^1.0.0",
+    "homedir-polyfill": "^1.0.3",
+    "node-install-release": "^1.4.0",
+    "node-resolve-versions": "^1.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
