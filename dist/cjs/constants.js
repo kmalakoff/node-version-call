@@ -1,6 +1,6 @@
 "use strict";
 var path = require('path');
-var home = require('osenv').home();
+var home = require('homedir-polyfill')();
 module.exports = {
     isWindows: process.platform === 'win32',
     node: process.platform === 'win32' ? 'node.exe' : 'node',
