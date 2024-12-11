@@ -1,11 +1,12 @@
 "use strict";
 var path = require('path');
 var home = require('homedir-polyfill')();
+var isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process.env.OSTYPE);
 module.exports = {
-    isWindows: process.platform === 'win32',
-    node: process.platform === 'win32' ? 'node.exe' : 'node',
+    isWindows: isWindows,
+    node: isWindows ? 'node.exe' : 'node',
     cacheDirectory: path.join(home, '.nvu', 'cache'),
     buildDirectory: path.join(home, '.nvu', 'build'),
     installDirectory: path.join(home, '.nvu', 'installed')
 };
-/* CJS INTEROP */ if (exports.__esModule && exports.default) { Object.defineProperty(exports.default, '__esModule', { value: true }); for (var key in exports) exports.default[key] = exports[key]; module.exports = exports.default; }
+/* CJS INTEROP */ if (exports.__esModule && exports.default) { try { Object.defineProperty(exports.default, '__esModule', { value: true }); for (var key in exports) { exports.default[key] = exports[key]; } } catch (_) {}; module.exports = exports.default; }
