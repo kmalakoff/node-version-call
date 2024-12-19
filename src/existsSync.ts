@@ -1,10 +1,10 @@
 const accessSync = require('fs-access-sync-compat');
 
-export default function path(path) {
+export default function existsSync(path) {
   try {
     accessSync(path);
     return true;
-  } catch (_err) {
+  } catch (_) {
     return false;
   }
 }

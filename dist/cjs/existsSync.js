@@ -5,15 +5,15 @@ Object.defineProperty(exports, "__esModule", {
 Object.defineProperty(exports, "default", {
     enumerable: true,
     get: function() {
-        return path;
+        return existsSync;
     }
 });
 var accessSync = require('fs-access-sync-compat');
-function path(path) {
+function existsSync(path) {
     try {
         accessSync(path);
         return true;
-    } catch (_err) {
+    } catch (_) {
         return false;
     }
 }

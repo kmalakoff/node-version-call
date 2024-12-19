@@ -1,1 +1,1 @@
-export default function path(path: any): boolean;
+export default function existsSync(path: any): boolean;
