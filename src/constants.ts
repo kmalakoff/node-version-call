@@ -1,8 +1,10 @@
-const path = require('path');
-const home = require('homedir-polyfill')();
+import path from 'path';
+import homeDir from 'homedir-polyfill';
+
+const home = homeDir();
 const isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process.env.OSTYPE);
 
-module.exports = {
+export default {
   isWindows,
   node: isWindows ? 'node.exe' : 'node',
   cacheDirectory: path.join(home, '.nvu', 'cache'),

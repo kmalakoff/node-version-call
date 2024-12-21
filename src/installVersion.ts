@@ -1,12 +1,12 @@
-const path = require('path');
-const constants = require('./constants');
+import path from 'path';
+import constants from './constants.js';
+import lazy from './lib/lazy.cjs';
 
-let installRelease = null; // break dependencies
+const installRelease = lazy('node-install-release');
+
 export default function installVersion(version: string, callback: (error?: Error) => void): void {
-  installRelease = require('node-install-release'); // break dependencies
-
   const installPath = path.join(constants.installDirectory, version);
-  installRelease(
+  installRelease()(
     version,
     installPath,
     {
