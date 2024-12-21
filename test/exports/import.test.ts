@@ -1,5 +1,5 @@
-const assert = require('assert');
-const call = require('node-version-call');
+import assert from 'assert';
+import call from 'node-version-call';
 
 describe('exports .ts', () => {
   it('defaults', () => {

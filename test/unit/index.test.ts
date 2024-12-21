@@ -1,9 +1,16 @@
-const assert = require('assert');
-const call = require('node-version-call');
-const isVersion = require('is-version');
-const keys = require('lodash.keys');
+// remove NODE_OPTIONS from ts-dev-stack
+// biome-ignore lint/performance/noDelete: <explanation>
+delete process.env.NODE_OPTIONS;
 
-const path = require('path');
+import assert from 'assert';
+import isVersion from 'is-version';
+import keys from 'lodash.keys';
+import call from 'node-version-call';
+
+import path from 'path';
+import url from 'url';
+
+const __dirname = path.dirname(typeof __filename !== 'undefined' ? __filename : url.fileURLToPath(import.meta.url));
 const DATA = path.resolve(__dirname, '..', 'data');
 
 const versions = ['local', '0.8.28', '12', '18', 'lts'];
@@ -18,7 +25,7 @@ describe('node-version-call', function () {
 
   describe('callbacks', () => {
     addTests((version) => () => {
-      const fnPath = path.join(DATA, 'callbacks.js');
+      const fnPath = path.join(DATA, 'callbacks.cjs');
       const result = call({ version, callbacks: true }, fnPath, 'arg1');
       assert.equal(result, 'arg1');
     });
@@ -26,7 +33,7 @@ describe('node-version-call', function () {
 
   describe('no export', () => {
     addTests((version) => () => {
-      const fnPath = path.join(DATA, 'noExport.js');
+      const fnPath = path.join(DATA, 'noExport.cjs');
       const result = call(version, fnPath);
       assert.equal(keys(result).length, 0);
     });
@@ -34,7 +41,7 @@ describe('node-version-call', function () {
 
   describe('process version', () => {
     addTests((version) => () => {
-      const fnPath = path.join(DATA, 'processVersion.js');
+      const fnPath = path.join(DATA, 'processVersion.cjs');
       const result = call(version, fnPath);
 
       switch (version) {
@@ -66,7 +73,7 @@ describe('node-version-call', function () {
         new Map(),
         new Set(),
       ];
-      const fnPath = path.join(DATA, 'returnArguments.js');
+      const fnPath = path.join(DATA, 'returnArguments.cjs');
       const result = call(version, fnPath, ...args);
       assert.equal(JSON.stringify(result), JSON.stringify(args));
     });
@@ -74,7 +81,7 @@ describe('node-version-call', function () {
 
   describe('throw error', () => {
     addTests((version) => () => {
-      const fnPath = path.join(DATA, 'throwError.js');
+      const fnPath = path.join(DATA, 'throwError.cjs');
       try {
         call(version, fnPath);
         assert.ok(false);
