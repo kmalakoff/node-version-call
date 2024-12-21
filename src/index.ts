@@ -30,13 +30,9 @@ export default function call(version: string | VersionInfo, filePath: string, ..
 
   // call a version of node
   const execPath = versionExecPath(version);
-  const env = { ...process.env };
-  // biome-ignore lint/performance/noDelete: <explanation>
-  delete env.NODE_OPTIONS;
-
   const options = {
     execPath,
-    env: env,
+    env: process.env,
     cwd: process.cwd(),
     sleep: SLEEP_MS,
     callbacks,
