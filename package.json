@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "fs-access-sync-compat": "^1.0.2",
-    "function-exec-sync": "^1.0.2",
+    "function-exec-sync": "^1.0.3",
     "homedir-polyfill": "^1.0.3",
     "lazy-cache": "^2.0.2",
     "node-install-release": "^1.4.3",
