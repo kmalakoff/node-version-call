@@ -1,6 +1,7 @@
-import lazy from './lib/lazy.cjs';
 import versionExecPath from './versionExecPath.js';
 
+// @ts-ignore
+import lazy from './lib/lazy.cjs';
 const functionExec = lazy('function-exec-sync');
 
 const SLEEP_MS = 60;
