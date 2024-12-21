@@ -15,7 +15,7 @@ export type VersionInfo = {
 export default function call(version: string | VersionInfo, filePath: string, ...args): any {
   let callbacks = false;
   if (typeof version !== 'string') {
-    callbacks = (version as VersionInfo).callbacks ?? false;
+    callbacks = (version as VersionInfo).callbacks === undefined ? false : (version as VersionInfo).callbacks;
     version = (version as VersionInfo).version;
 
     // need to unwrap callbacks
