@@ -1,21 +1,25 @@
+import path from 'path';
+import home from 'homedir-polyfill';
+import getInstallDirs from './getInstallDirs.js';
+import type { VersionInfo } from './types.js';
 import versionExecPath from './versionExecPath.js';
 
 // @ts-ignore
 import lazy from './lib/lazy.cjs';
 const functionExec = lazy('function-exec-sync');
-
 const SLEEP_MS = 60;
 
-export type VersionInfo = {
-  version: string;
-  callbacks: boolean;
-};
+const NVC_DIR = path.join(home(), '.nvc');
+const NVC_DIRS_DEFAULT = getInstallDirs(NVC_DIR);
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export default function call(version: string | VersionInfo, filePath: string, ...args): any {
   let callbacks = false;
+  let installDirs = NVC_DIRS_DEFAULT;
+
   if (typeof version !== 'string') {
-    callbacks = (version as VersionInfo).callbacks === undefined ? false : (version as VersionInfo).callbacks;
+    if ((version as VersionInfo).callbacks) callbacks = true;
+    if ((version as VersionInfo).installDir) installDirs = getInstallDirs((version as VersionInfo).installDir);
     version = (version as VersionInfo).version;
 
     // need to unwrap callbacks
@@ -29,7 +33,7 @@ export default function call(version: string | VersionInfo, filePath: string, ..
   }
 
   // call a version of node
-  const execPath = versionExecPath(version);
+  const execPath = versionExecPath(version, installDirs);
   const options = {
     execPath,
     env: process.env,
