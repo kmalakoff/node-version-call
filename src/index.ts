@@ -12,6 +12,8 @@ const SLEEP_MS = 60;
 const NVC_DIR = path.join(home(), '.nvc');
 const NVC_DIRS_DEFAULT = getInstallDirs(NVC_DIR);
 
+export * from './types.js';
+
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export default function call(version: string | VersionInfo, filePath: string, ...args): any {
   let callbacks = false;
