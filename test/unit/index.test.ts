@@ -6,12 +6,14 @@ import assert from 'assert';
 import isVersion from 'is-version';
 import keys from 'lodash.keys';
 import call from 'node-version-call';
+import rimraf2 from 'rimraf2';
 
 import path from 'path';
 import url from 'url';
 
 const __dirname = path.dirname(typeof __filename !== 'undefined' ? __filename : url.fileURLToPath(import.meta.url));
 const DATA = path.resolve(__dirname, '..', 'data');
+const TMP = path.resolve(__dirname, '..', '..', '.tmp');
 
 const versions = ['local', '0.8.28', '12', '18', 'lts'];
 function addTests(fn) {
@@ -22,11 +24,13 @@ function addTests(fn) {
 
 describe('node-version-call', function () {
   this.timeout(600000);
+  this.beforeAll(rimraf2.bind(null, TMP, { disableGlob: true }));
+  this.afterAll(rimraf2.bind(null, TMP, { disableGlob: true }));
 
   describe('callbacks', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'callbacks.cjs');
-      const result = call({ version, callbacks: true }, fnPath, 'arg1');
+      const result = call({ version, callbacks: true, installDir: TMP }, fnPath, 'arg1');
       assert.equal(result, 'arg1');
     });
   });
