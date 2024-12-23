@@ -25,7 +25,7 @@ function addTests(fn) {
 describe('node-version-call', function () {
   this.timeout(600000);
   this.beforeAll(rimraf2.bind(null, TMP, { disableGlob: true }));
-  this.afterAll(rimraf2.bind(null, TMP, { disableGlob: true }));
+  // this.afterAll(rimraf2.bind(null, TMP, { disableGlob: true }));
 
   describe('callbacks', () => {
     addTests((version) => () => {
