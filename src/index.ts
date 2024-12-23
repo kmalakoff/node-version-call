@@ -2,8 +2,8 @@ import path from 'path';
 import home from 'homedir-polyfill';
 
 import getInstallDirs from './getInstallDirs.js';
+import installVersion from './installVersion.js';
 import type { VersionInfo } from './types.js';
-import versionExecPath from './versionExecPath.js';
 
 // @ts-ignore
 import lazy from './lib/lazy.cjs';
@@ -37,9 +37,9 @@ export default function call(version: string | VersionInfo, filePath: string, ..
   }
 
   // call a version of node
-  const execPath = versionExecPath(version, installDirs);
-  const options = versionUtils().spawnOptions(path.join(installDirs.installDirectory, version), {});
-  options.execPath = execPath;
+  const installed = installVersion(version, installDirs);
+  const options = versionUtils().spawnOptions(path.join(installDirs.installDirectory, installed.version), {});
+  options.execPath = installed.execPath;
   options.sleep = SLEEP_MS;
   options.callbacks = callbacks;
   return functionExec()(options, filePath, ...args);

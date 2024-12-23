@@ -14,9 +14,9 @@ const execFunction = lazy('function-exec-sync');
 const SLEEP_MS = 200;
 const __dirname = path.dirname(typeof __filename !== 'undefined' ? __filename : url.fileURLToPath(import.meta.url));
 const root = packageRoot(__dirname);
-const installVersion = path.join(root, 'dist', 'cjs', 'workers', 'installVersion.js');
+const installVersionWorker = path.join(root, 'dist', 'cjs', 'workers', 'installVersion.js');
 
-export default function versionExecPath(versionString: string, installDirs: InstallDirs) {
+export default function installVersion(versionString: string, installDirs: InstallDirs) {
   const versions = resolveVersion().sync(versionString);
   if (versions.length > 1) throw new Error(`Multiple versions match: ${versionString} = ${versions.join(',')}. Please be specific`);
   const version = versions[0];
@@ -25,8 +25,8 @@ export default function versionExecPath(versionString: string, installDirs: Inst
   const execPath = path.join(binRoot, node);
 
   // already installed
-  if (existsSync(execPath)) return execPath;
-  execFunction().default({ cwd: process.cwd(), sleep: SLEEP_MS, callbacks: true }, installVersion, version, installDirs);
+  if (existsSync(execPath)) return { version, execPath };
+  execFunction().default({ cwd: process.cwd(), sleep: SLEEP_MS, callbacks: true }, installVersionWorker, version, installDirs);
   if (!existsSync(execPath)) throw new Error(`${version} not installed. Requested: ${versionString}`); // confirm installed
-  return execPath;
+  return { version, execPath };
 }
