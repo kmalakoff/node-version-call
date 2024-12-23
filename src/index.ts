@@ -1,5 +1,6 @@
 import path from 'path';
 import home from 'homedir-polyfill';
+
 import getInstallDirs from './getInstallDirs.js';
 import type { VersionInfo } from './types.js';
 import versionExecPath from './versionExecPath.js';
@@ -7,6 +8,7 @@ import versionExecPath from './versionExecPath.js';
 // @ts-ignore
 import lazy from './lib/lazy.cjs';
 const functionExec = lazy('function-exec-sync');
+const versionUtils = lazy('node-version-utils');
 const SLEEP_MS = 60;
 
 const NVC_DIR = path.join(home(), '.nvc');
@@ -36,12 +38,9 @@ export default function call(version: string | VersionInfo, filePath: string, ..
 
   // call a version of node
   const execPath = versionExecPath(version, installDirs);
-  const options = {
-    execPath,
-    env: process.env,
-    cwd: process.cwd(),
-    sleep: SLEEP_MS,
-    callbacks,
-  };
+  const options = versionUtils().spawnOptions(path.join(installDirs.installDirectory, version), {});
+  options.execPath = execPath;
+  options.sleep = SLEEP_MS;
+  options.callbacks = callbacks;
   return functionExec()(options, filePath, ...args);
 }
