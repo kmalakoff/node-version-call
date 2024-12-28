@@ -1,8 +1,8 @@
 import path from 'path';
 import url from 'url';
+import existsSync from 'fs-exists-sync';
 
 import { isWindows, node } from './constants.js';
-import existsSync from './lib/existsSync.js';
 // @ts-ignore
 import lazy from './lib/lazy.cjs';
 import packageRoot from './lib/packageRoot.js';
