@@ -63,8 +63,9 @@
     "function-exec-sync": "^1.1.2",
     "homedir-polyfill": "^1.0.3",
     "lazy-cache": "^2.0.2",
+    "module-root-sync": "^0.1.1",
     "node-install-release": "^1.5.1",
-    "node-resolve-versions": "^1.0.3",
+    "node-resolve-versions": "^1.0.4",
     "node-version-utils": "^1.1.2"
   },
   "devDependencies": {
