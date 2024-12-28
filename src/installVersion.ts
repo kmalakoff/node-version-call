@@ -2,10 +2,10 @@ import path from 'path';
 import url from 'url';
 import existsSync from 'fs-exists-sync';
 
+import moduleRoot from 'module-root-sync';
 import { isWindows, node } from './constants.js';
 // @ts-ignore
 import lazy from './lib/lazy.cjs';
-import packageRoot from './lib/packageRoot.js';
 import type { InstallDirs } from './types.js';
 
 const resolveVersion = lazy('node-resolve-versions');
@@ -13,7 +13,7 @@ const execFunction = lazy('function-exec-sync');
 
 const SLEEP_MS = 200;
 const __dirname = path.dirname(typeof __filename !== 'undefined' ? __filename : url.fileURLToPath(import.meta.url));
-const root = packageRoot(__dirname);
+const root = moduleRoot(__dirname);
 const installVersionWorker = path.join(root, 'dist', 'cjs', 'workers', 'installVersion.js');
 
 export default function installVersion(versionString: string, installDirs: InstallDirs) {
