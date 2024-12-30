@@ -40,7 +40,6 @@ export default function call(version: string | VersionInfo, filePath: string, ..
     if ((results as InstallResult[]).length > 1) throw new Error(`node-version-call version string ${version} resolved to ${(results as InstallResult[]).length} versions. Only one is supported`);
   }
 
-  const result = isArray(results) ? results[0] : (results as InstallResult);
-  const options = { execPath: result.execPath, sleep: SLEEP_MS, callbacks };
+  const options = { execPath: results[0].execPath, sleep: SLEEP_MS, callbacks };
   return functionExec()(options, filePath, ...args);
 }
