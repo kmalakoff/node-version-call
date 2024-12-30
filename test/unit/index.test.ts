@@ -30,7 +30,7 @@ describe('node-version-call', function () {
   describe('callbacks', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'callbacks.cjs');
-      const result = call({ version, callbacks: true, installDir: TMP_DIR }, fnPath, 'arg1');
+      const result = call({ version, callbacks: true, installPath: TMP_DIR }, fnPath, 'arg1');
       assert.equal(result, 'arg1');
     });
   });

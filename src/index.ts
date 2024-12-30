@@ -1,29 +1,25 @@
-import path from 'path';
-import home from 'homedir-polyfill';
+import * as install from 'node-version-install';
+import type { InstallResult } from 'node-version-install';
 
-import getInstallDirs from './getInstallDirs.js';
-import installVersion from './installVersion.js';
-import type { VersionInfo } from './types.js';
-
-// @ts-ignore
-import lazy from './lib/lazy.cjs';
-const functionExec = lazy('function-exec-sync');
-const versionUtils = lazy('node-version-utils');
+import Module from 'module';
+import lazy from 'lazy-cache';
+const _require = typeof require === 'undefined' ? Module.createRequire(import.meta.url) : require;
+const functionExec = lazy(_require)('function-exec-sync');
 const SLEEP_MS = 60;
 
-const NVC_DIR = path.join(home(), '.nvc');
-const NVC_DIRS_DEFAULT = getInstallDirs(NVC_DIR);
+import type { VersionInfo } from './types.js';
+
+const isArray = Array.isArray || ((value: unknown) => Object.prototype.toString.call(value) === '[object Array]');
 
 export * from './types.js';
-
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export default function call(version: string | VersionInfo, filePath: string, ...args): any {
   let callbacks = false;
-  let installDirs = NVC_DIRS_DEFAULT;
+  let installPath = undefined;
 
   if (typeof version !== 'string') {
     if ((version as VersionInfo).callbacks) callbacks = true;
-    if ((version as VersionInfo).installDir) installDirs = getInstallDirs((version as VersionInfo).installDir);
+    if ((version as VersionInfo).installPath) installPath = (version as VersionInfo).installPath;
     version = (version as VersionInfo).version;
 
     // need to unwrap callbacks
@@ -32,15 +28,16 @@ export default function call(version: string | VersionInfo, filePath: string, ..
 
   // local - just call
   if (version === 'local' && !callbacks) {
-    const fn = lazy(filePath)();
+    const fn = _require(filePath);
     return typeof fn === 'function' ? fn.apply(null, args) : fn;
   }
 
   // call a version of node
-  const installed = installVersion(version, installDirs);
-  const options = versionUtils().spawnOptions(path.join(installDirs.installDirectory, installed.version), {});
-  options.execPath = installed.execPath;
-  options.sleep = SLEEP_MS;
-  options.callbacks = callbacks;
+  const results = install.sync(version, installPath ? { installPath } : {});
+  if (!results) throw new Error(`node-version-call version string ${version} failed to resolve`);
+  if ((isArray(results) && (results as InstallResult[]).length === 0) || (results as InstallResult[]).length > 1) throw new Error(`node-version-call version string ${version} resolved to ${(results as InstallResult[]).length} versions. Only one is supported`);
+
+  const result = isArray(results) ? results[0] : (results as InstallResult);
+  const options = { execPath: result.execPath, sleep: SLEEP_MS, callbacks };
   return functionExec()(options, filePath, ...args);
 }
