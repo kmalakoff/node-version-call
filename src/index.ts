@@ -35,7 +35,10 @@ export default function call(version: string | VersionInfo, filePath: string, ..
   // call a version of node
   const results = install.sync(version, installPath ? { installPath } : {});
   if (!results) throw new Error(`node-version-call version string ${version} failed to resolve`);
-  if ((isArray(results) && (results as InstallResult[]).length === 0) || (results as InstallResult[]).length > 1) throw new Error(`node-version-call version string ${version} resolved to ${(results as InstallResult[]).length} versions. Only one is supported`);
+  if (isArray(results)) {
+    if ((results as InstallResult[]).length === 0) throw new Error(`node-version-call version string ${version} resolved to zero versions.`);
+    if ((results as InstallResult[]).length > 1) throw new Error(`node-version-call version string ${version} resolved to ${(results as InstallResult[]).length} versions. Only one is supported`);
+  }
 
   const result = isArray(results) ? results[0] : (results as InstallResult);
   const options = { execPath: result.execPath, sleep: SLEEP_MS, callbacks };
