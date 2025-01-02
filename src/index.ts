@@ -1,5 +1,5 @@
 import * as install from 'node-version-install';
-import type { InstallResult } from 'node-version-install';
+import type { InstallOptions, InstallResult } from 'node-version-install';
 
 import Module from 'module';
 import lazy from 'lazy-cache';
@@ -7,19 +7,19 @@ const _require = typeof require === 'undefined' ? Module.createRequire(import.me
 const functionExec = lazy(_require)('function-exec-sync');
 const SLEEP_MS = 60;
 
-import type { VersionInfo } from './types.js';
+import type { VersionInfo } from './types';
 
 const isArray = Array.isArray || ((value: unknown) => Object.prototype.toString.call(value) === '[object Array]');
 
-export * from './types.js';
+export type * from './types';
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export default function call(version: string | VersionInfo, filePath: string, ...args): any {
   let callbacks = false;
-  let installPath = undefined;
+  const installOptions: InstallOptions = {};
 
   if (typeof version !== 'string') {
     if ((version as VersionInfo).callbacks) callbacks = true;
-    if ((version as VersionInfo).installPath) installPath = (version as VersionInfo).installPath;
+    if ((version as VersionInfo).storagePath) installOptions.storagePath = (version as VersionInfo).storagePath;
     version = (version as VersionInfo).version;
 
     // need to unwrap callbacks
@@ -33,7 +33,7 @@ export default function call(version: string | VersionInfo, filePath: string, ..
   }
 
   // call a version of node
-  const results = install.sync(version, installPath ? { installPath } : {});
+  const results = install.sync(version, installOptions);
   if (!results) throw new Error(`node-version-call version string ${version} failed to resolve`);
   if (isArray(results)) {
     if ((results as InstallResult[]).length === 0) throw new Error(`node-version-call version string ${version} resolved to zero versions.`);
