@@ -14,6 +14,9 @@ import url from 'url';
 const __dirname = path.dirname(typeof __filename !== 'undefined' ? __filename : url.fileURLToPath(import.meta.url));
 const DATA = path.resolve(__dirname, '..', 'data');
 const TMP_DIR = path.resolve(__dirname, '..', '..', '.tmp');
+const OPTIONS = {
+  storagePath: path.join(TMP_DIR),
+};
 
 const versions = ['local', '0.8.28', '12', '18', 'lts'];
 function addTests(fn) {
@@ -30,7 +33,7 @@ describe('node-version-call', function () {
   describe('callbacks', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'callbacks.cjs');
-      const result = call({ version, callbacks: true, installPath: TMP_DIR }, fnPath, 'arg1');
+      const result = call({ version, callbacks: true, ...OPTIONS }, fnPath, 'arg1');
       assert.equal(result, 'arg1');
     });
   });
@@ -46,7 +49,7 @@ describe('node-version-call', function () {
   describe('process version', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'processVersion.cjs');
-      const result = call(version, fnPath);
+      const result = call({ version, ...OPTIONS }, fnPath);
 
       switch (version) {
         case 'local':
@@ -78,7 +81,7 @@ describe('node-version-call', function () {
         new Set(),
       ];
       const fnPath = path.join(DATA, 'returnArguments.cjs');
-      const result = call(version, fnPath, ...args);
+      const result = call({ version, ...OPTIONS }, fnPath, ...args);
       assert.equal(JSON.stringify(result), JSON.stringify(args));
     });
   });
