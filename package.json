@@ -53,6 +53,7 @@
   "scripts": {
     "build": "tsds build",
     "deploy": "tsds deploy",
+    "docs": "tsds docs",
     "format": "biome check --write --unsafe src/ test/",
     "test": "tsds test:node --no-timeouts",
     "test:engines": "nvu engines npm run test",
@@ -61,7 +62,7 @@
   "dependencies": {
     "function-exec-sync": "^1.1.6",
     "lazy-cache": "^2.0.2",
-    "node-version-install": "^0.2.7"
+    "node-version-install": "^0.2.8"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
