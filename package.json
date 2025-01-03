@@ -62,7 +62,7 @@
   "dependencies": {
     "function-exec-sync": "^1.1.6",
     "lazy-cache": "^2.0.2",
-    "node-version-install": "^0.2.8"
+    "node-version-install": "^1.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
