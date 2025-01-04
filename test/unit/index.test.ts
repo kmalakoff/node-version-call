@@ -12,8 +12,8 @@ import call from 'node-version-call';
 import path from 'path';
 import url from 'url';
 const __dirname = path.dirname(typeof __filename !== 'undefined' ? __filename : url.fileURLToPath(import.meta.url));
-const DATA = path.resolve(__dirname, '..', 'data');
-const TMP_DIR = path.resolve(__dirname, '..', '..', '.tmp');
+const DATA = path.join(__dirname, '..', 'data');
+const TMP_DIR = path.join(__dirname, '..', '..', '.tmp');
 const OPTIONS = {
   storagePath: path.join(TMP_DIR),
 };
