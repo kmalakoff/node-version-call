@@ -60,9 +60,9 @@
     "version": "tsds version"
   },
   "dependencies": {
-    "function-exec-sync": "^1.1.6",
+    "function-exec-sync": "^1.1.8",
     "lazy-cache": "^2.0.2",
-    "node-version-install": "^1.0.0"
+    "node-version-install": "^1.0.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
