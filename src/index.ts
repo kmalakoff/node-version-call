@@ -28,7 +28,7 @@ export default function call(versionInfo: string | VersionInfo, filePath: string
       const env = versionInfo.env || process.env;
       const nodePath = env.NODE || env.npm_node_execpath || NODE_EXEC_PATH;
       const options = { execPath: nodePath, sleep: SLEEP_MS, callbacks: versionInfo.callbacks };
-      return functionExec()(options, filePath, ...args);
+      return functionExec().apply(null, [options, filePath].concat(args));
     }
     const fn = _require(filePath);
     return typeof fn === 'function' ? fn.apply(null, args) : fn;
@@ -41,5 +41,5 @@ export default function call(versionInfo: string | VersionInfo, filePath: string
   if (results.length > 1) throw new Error(`node-version-call version string ${version} resolved to ${(results as InstallResult[]).length} versions. Only one is supported`);
 
   const options = { execPath: results[0].execPath, sleep: SLEEP_MS, callbacks: versionInfo.callbacks };
-  return functionExec()(options, filePath, ...args);
+  return functionExec().apply(null, [options, filePath].concat(args));
 }
