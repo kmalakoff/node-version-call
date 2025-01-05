@@ -25,8 +25,7 @@ function addTests(fn) {
   }
 }
 
-describe('node-version-call', function () {
-  this.timeout(600000);
+describe('node-version-call', () => {
   before(rimraf2.bind(null, TMP_DIR, { disableGlob: true }));
   after(rimraf2.bind(null, TMP_DIR, { disableGlob: true }));
 
