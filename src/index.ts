@@ -23,14 +23,19 @@ export default function call(versionInfo: string | VersionInfo, filePath: string
   const version = versionInfo.version === 'local' ? process.version : versionInfo.version;
 
   // local - just call
-  if (version === versionInfo.version && !versionInfo.callbacks) {
+  if (version === process.version) {
+    if (versionInfo.callbacks) {
+      const env = versionInfo.env || process.env;
+      const nodePath = env.NODE || env.npm_node_execpath || NODE_EXEC_PATH;
+      const options = { execPath: nodePath, sleep: SLEEP_MS, callbacks: versionInfo.callbacks };
+      return functionExec()(options, filePath, ...args);
+    }
     const fn = _require(filePath);
     return typeof fn === 'function' ? fn.apply(null, args) : fn;
   }
 
-  // call a version of node
-  const env = process.env;
-  const results = version === process.version ? install.sync(version, installOptions) : [{ execPath: env.NODE || env.npm_node_execpath || NODE_EXEC_PATH }];
+  // install and call a version of node
+  const results = install.sync(version, installOptions);
   if (!results) throw new Error(`node-version-call version string ${version} failed to resolve`);
   if (results.length === 0) throw new Error(`node-version-call version string ${version} resolved to zero versions.`);
   if (results.length > 1) throw new Error(`node-version-call version string ${version} resolved to ${(results as InstallResult[]).length} versions. Only one is supported`);
