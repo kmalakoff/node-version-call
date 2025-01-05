@@ -1,16 +1,11 @@
 import * as install from 'node-version-install';
 import type { InstallOptions, InstallResult } from 'node-version-install';
-import which from 'which';
 
 import Module from 'module';
 import lazy from 'lazy-cache';
 const _require = typeof require === 'undefined' ? Module.createRequire(import.meta.url) : require;
 const functionExec = lazy(_require)('function-exec-sync');
 const SLEEP_MS = 60;
-
-const isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process.env.OSTYPE);
-const NODE = isWindows ? 'node.exe' : 'node';
-const NODE_EXEC_PATH = which.sync(NODE);
 
 import type { VersionInfo } from './types';
 
@@ -25,9 +20,7 @@ export default function call(versionInfo: string | VersionInfo, filePath: string
   // local - just call
   if (version === process.version) {
     if (versionInfo.callbacks) {
-      const env = versionInfo.env || process.env;
-      const nodePath = env.NODE || env.npm_node_execpath || NODE_EXEC_PATH;
-      const options = { execPath: nodePath, sleep: SLEEP_MS, callbacks: versionInfo.callbacks };
+      const options = { execPath: process.execPath, sleep: SLEEP_MS, callbacks: versionInfo.callbacks };
       return functionExec().apply(null, [options, filePath].concat(args));
     }
     const fn = _require(filePath);
