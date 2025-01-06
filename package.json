@@ -58,7 +58,7 @@
     "version": "tsds version"
   },
   "dependencies": {
-    "function-exec-sync": "^1.2.2",
+    "function-exec-sync": "^1.2.3",
     "lazy-cache": "^2.0.2",
     "node-version-install": "^1.1.0"
   },
