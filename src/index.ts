@@ -1,5 +1,6 @@
 import * as install from 'node-version-install';
 import type { InstallOptions, InstallResult } from 'node-version-install';
+import { spawnOptions } from 'node-version-utils';
 
 import Module from 'module';
 import lazy from 'lazy-cache';
@@ -10,9 +11,7 @@ const SLEEP_MS = 60;
 import type { VersionInfo } from './types';
 
 export type * from './types';
-export default function call(versionInfo: string | VersionInfo, filePath: string): unknown {
-  // biome-ignore lint/style/noArguments: <explanation>
-  const args = Array.prototype.slice.call(arguments, 2);
+export default function call(versionInfo: string | VersionInfo, filePath: string, ...args): unknown {
   if (typeof versionInfo === 'string') versionInfo = { version: versionInfo } as VersionInfo;
   const installOptions = versionInfo.storagePath ? { storagePath: versionInfo.storagePath } : ({} as InstallOptions);
   const version = versionInfo.version === 'local' ? process.version : versionInfo.version;
@@ -33,6 +32,6 @@ export default function call(versionInfo: string | VersionInfo, filePath: string
   if (results.length === 0) throw new Error(`node-version-call version string ${version} resolved to zero versions.`);
   if (results.length > 1) throw new Error(`node-version-call version string ${version} resolved to ${(results as InstallResult[]).length} versions. Only one is supported`);
 
-  const options = { execPath: results[0].execPath, sleep: SLEEP_MS, callbacks: versionInfo.callbacks };
+  const options = spawnOptions(results[0].installPath, { execPath: results[0].execPath, sleep: SLEEP_MS, callbacks: versionInfo.callbacks });
   return functionExec().apply(null, [options, filePath].concat(args));
 }
