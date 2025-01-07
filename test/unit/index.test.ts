@@ -48,7 +48,7 @@ describe('node-version-call', () => {
   describe('process version', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'processVersion.cjs');
-      const result = call({ version, ...OPTIONS }, fnPath);
+      const result = call({ version, ...OPTIONS }, fnPath) as string;
 
       switch (version) {
         case 'local':
