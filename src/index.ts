@@ -1,4 +1,4 @@
-import * as install from 'node-version-install';
+import { sync as installSync } from 'node-version-install';
 import type { InstallOptions, InstallResult } from 'node-version-install';
 import { spawnOptions } from 'node-version-utils';
 
@@ -25,7 +25,7 @@ export default function call(versionInfo: string | VersionInfo, filePath: string
   }
 
   // install and call a version of node
-  const results = install.sync(version, installOptions);
+  const results = installSync(version, installOptions);
   if (!results) throw new Error(`node-version-call version string ${version} failed to resolve`);
   if (results.length === 0) throw new Error(`node-version-call version string ${version} resolved to zero versions.`);
   if (results.length > 1) throw new Error(`node-version-call version string ${version} resolved to ${(results as InstallResult[]).length} versions. Only one is supported`);
