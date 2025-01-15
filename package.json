@@ -55,17 +55,16 @@
     "version": "tsds version"
   },
   "dependencies": {
-    "function-exec-sync": "^1.2.9",
+    "function-exec-sync": "^1.2.10",
     "node-version-install": "^1.1.12",
     "node-version-utils": "^1.2.7"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/mocha": "^10.0.10",
-    "@types/node": "^22.10.5",
-    "is-version": "^0.2.7",
-    "lodash.keys": "^4.2.0",
-    "rimraf2": "^2.8.2"
+    "@types/mocha": "*",
+    "@types/node": "*",
+    "is-version": "*",
+    "lodash.keys": "*",
+    "rimraf2": "*"
   },
   "engines": {
     "node": ">=0.8"
