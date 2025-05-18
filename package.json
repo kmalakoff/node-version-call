@@ -38,12 +38,12 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/esm/index.mjs",
-      "require": "./dist/cjs/index.cjs"
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
     },
     "./package.json": "./package.json"
   },
-  "main": "dist/cjs/index.cjs",
+  "main": "dist/cjs/index.js",
   "types": "dist/cjs/index.d.cts",
   "files": [
     "dist"
@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "function-exec-sync": "^1.2.22",
-    "node-version-install": "^1.1.55",
+    "node-version-install": "^1.2.0",
     "node-version-utils": "^1.2.15"
   },
   "devDependencies": {
