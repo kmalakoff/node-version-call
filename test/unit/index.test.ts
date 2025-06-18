@@ -4,13 +4,12 @@ delete process.env.NODE_OPTIONS;
 import assert from 'assert';
 import isVersion from 'is-version';
 import keys from 'lodash.keys';
-import rimraf2 from 'rimraf2';
-
 // @ts-ignore
 import call from 'node-version-call';
-
 import path from 'path';
+import rimraf2 from 'rimraf2';
 import url from 'url';
+
 const __dirname = path.dirname(typeof __filename !== 'undefined' ? __filename : url.fileURLToPath(import.meta.url));
 const DATA = path.join(__dirname, '..', 'data');
 const TMP_DIR = path.join(__dirname, '..', '..', '.tmp');
