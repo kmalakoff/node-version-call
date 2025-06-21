@@ -6,9 +6,9 @@ import { spawnOptions } from 'node-version-utils';
 const _require = typeof require === 'undefined' ? Module.createRequire(import.meta.url) : require;
 const SLEEP_MS = 60;
 
-import type { VersionInfo } from './types.js';
+import type { VersionInfo } from './types.ts';
 
-export type * from './types.js';
+export type * from './types.ts';
 export default function call(versionInfo: string | VersionInfo, filePath: string, ...args): unknown {
   if (typeof versionInfo === 'string') versionInfo = { version: versionInfo } as VersionInfo;
   const installOptions = versionInfo.storagePath ? { storagePath: versionInfo.storagePath } : ({} as InstallOptions);
