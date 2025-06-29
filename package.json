@@ -1,6 +1,6 @@
 {
   "name": "node-version-call",
-  "version": "1.8.5",
+  "version": "1.8.6",
   "description": "Call a function in a specific version of node",
   "keywords": [
     "apis",
