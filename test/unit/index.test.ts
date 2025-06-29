@@ -60,7 +60,7 @@ describe('node-version-call', () => {
         default:
           assert.equal(result.indexOf(`v${version}`), 0);
           assert.ok(isVersion(result.slice(1)));
-          assert.ok(result.slice(1).startsWith(version));
+          assert.ok(result.slice(1).indexOf(version) === 0);
           break;
       }
     });
