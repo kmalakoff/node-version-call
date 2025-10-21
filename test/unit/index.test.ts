@@ -4,7 +4,6 @@ delete process.env.NODE_OPTIONS;
 import assert from 'assert';
 import isVersion from 'is-version';
 import keys from 'lodash.keys';
-// @ts-ignore
 import call from 'node-version-call';
 import path from 'path';
 import rimraf2 from 'rimraf2';
