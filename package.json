@@ -65,10 +65,10 @@
   "devDependencies": {
     "@types/mocha": "*",
     "@types/node": "*",
+    "fs-remove-compat": "*",
     "is-version": "*",
     "lodash.keys": "*",
     "node-version-use": "*",
-    "rimraf2": "*",
     "ts-dev-stack": "*",
     "tsds-config": "*"
   },
