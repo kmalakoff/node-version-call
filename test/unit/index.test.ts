@@ -94,4 +94,12 @@ describe('node-version-call', () => {
       }
     });
   });
+
+  describe('env passing', () => {
+    addTests((version) => () => {
+      const fnPath = path.join(DATA, 'envCheck.cjs');
+      const result = call({ version, callbacks: true, env: { TEST_ENV_VAR: 'passed' }, ...OPTIONS }, fnPath);
+      assert.equal(result, 'passed');
+    });
+  });
 });
