@@ -2,11 +2,11 @@
 delete process.env.NODE_OPTIONS;
 
 import assert from 'assert';
+import { safeRm } from 'fs-remove-compat';
 import isVersion from 'is-version';
 import keys from 'lodash.keys';
 import call from 'node-version-call';
 import path from 'path';
-import rimraf2 from 'rimraf2';
 import url from 'url';
 
 const __dirname = path.dirname(typeof __filename !== 'undefined' ? __filename : url.fileURLToPath(import.meta.url));
@@ -24,8 +24,8 @@ function addTests(fn) {
 }
 
 describe('node-version-call', () => {
-  before(rimraf2.bind(null, TMP_DIR, { disableGlob: true }));
-  after(rimraf2.bind(null, TMP_DIR, { disableGlob: true }));
+  before((cb) => safeRm(TMP_DIR, cb));
+  after((cb) => safeRm(TMP_DIR, cb));
 
   describe('callbacks', () => {
     addTests((version) => () => {
