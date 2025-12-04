@@ -18,7 +18,7 @@ export default function call(versionInfo: string | VersionInfo, filePath: string
   // local - just call
   if (version === process.version) {
     if (versionInfo.callbacks) {
-      const options = { execPath: process.execPath, sleep: SLEEP_MS, callbacks: versionInfo.callbacks };
+      const options = { execPath: process.execPath, sleep: SLEEP_MS, callbacks: versionInfo.callbacks, env: versionInfo.env };
       return (_require('function-exec-sync') as typeof functionExecSync).apply(null, [options, filePath, ...args]);
     }
     const fn = _require(filePath);
@@ -31,6 +31,6 @@ export default function call(versionInfo: string | VersionInfo, filePath: string
   if (results.length === 0) throw new Error(`node-version-call version string ${version} resolved to zero versions.`);
   if (results.length > 1) throw new Error(`node-version-call version string ${version} resolved to ${(results as InstallResult[]).length} versions. Only one is supported`);
 
-  const options = spawnOptions(results[0].installPath, { execPath: results[0].execPath, sleep: SLEEP_MS, callbacks: versionInfo.callbacks } as SpawnOptions);
+  const options = spawnOptions(results[0].installPath, { execPath: results[0].execPath, sleep: SLEEP_MS, callbacks: versionInfo.callbacks, env: versionInfo.env } as SpawnOptions);
   return (_require('function-exec-sync') as typeof functionExecSync).apply(null, [options, filePath, ...args]);
 }
