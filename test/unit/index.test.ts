@@ -2,10 +2,10 @@
 delete process.env.NODE_OPTIONS;
 
 import assert from 'assert';
+import pathKey from 'env-path-key';
 import { safeRm } from 'fs-remove-compat';
 import isVersion from 'is-version';
 import keys from 'lodash.keys';
-import pathKey from 'env-path-key';
 import call from 'node-version-call';
 import path from 'path';
 import url from 'url';
