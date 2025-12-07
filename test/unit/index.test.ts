@@ -5,6 +5,7 @@ import assert from 'assert';
 import { safeRm } from 'fs-remove-compat';
 import isVersion from 'is-version';
 import keys from 'lodash.keys';
+import pathKey from 'env-path-key';
 import call from 'node-version-call';
 import path from 'path';
 import url from 'url';
@@ -98,7 +99,8 @@ describe('node-version-call', () => {
   describe('env passing', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'envCheck.cjs');
-      const result = call({ version, callbacks: true, env: { TEST_ENV_VAR: 'passed' }, ...OPTIONS }, fnPath);
+      const PATH_KEY = pathKey();
+      const result = call({ version, callbacks: true, env: { TEST_ENV_VAR: 'passed', [PATH_KEY]: process.env[PATH_KEY] }, ...OPTIONS }, fnPath);
       assert.equal(result, 'passed');
     });
   });
