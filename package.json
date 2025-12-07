@@ -1,6 +1,6 @@
 {
   "name": "node-version-call",
-  "version": "1.9.18",
+  "version": "1.9.19",
   "description": "Call a function in a specific version of node",
   "keywords": [
     "apis",
@@ -58,9 +58,10 @@
     "version": "tsds version"
   },
   "dependencies": {
+    "env-path-key": "^1.1.6",
     "function-exec-sync": "^1.4.14",
     "node-version-install": "^1.4.18",
-    "node-version-utils": "^1.3.13"
+    "node-version-utils": "^1.3.14"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
