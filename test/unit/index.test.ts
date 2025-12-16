@@ -1,4 +1,4 @@
-// remove NODE_OPTIONS from ts-dev-stack
+// remove NODE_OPTIONS to not interfere with tests
 delete process.env.NODE_OPTIONS;
 
 import assert from 'assert';
@@ -24,11 +24,11 @@ function addTests(fn) {
   }
 }
 
-describe('node-version-call', () => {
+describe.only('node-version-call', () => {
   before((cb) => safeRm(TMP_DIR, cb));
   after((cb) => safeRm(TMP_DIR, cb));
 
-  describe('callbacks', () => {
+  describe.only('callbacks', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'callbacks.cjs');
       const result = call({ version, callbacks: true, ...OPTIONS }, fnPath, 'arg1');
