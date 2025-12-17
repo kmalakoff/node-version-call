@@ -24,11 +24,11 @@ function addTests(fn) {
   }
 }
 
-describe.only('node-version-call', () => {
+describe('node-version-call', () => {
   before((cb) => safeRm(TMP_DIR, cb));
   after((cb) => safeRm(TMP_DIR, cb));
 
-  describe.only('callbacks', () => {
+  describe('callbacks', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'callbacks.cjs');
       const result = call({ version, callbacks: true, ...OPTIONS }, fnPath, 'arg1');

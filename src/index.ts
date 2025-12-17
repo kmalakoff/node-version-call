@@ -8,9 +8,31 @@ import { type SpawnOptions, spawnOptions } from 'node-version-utils';
 const _require = typeof require === 'undefined' ? Module.createRequire(import.meta.url) : require;
 const SLEEP_MS = 60;
 
-import type { VersionInfo } from './types.ts';
+import type { VersionInfo, WrapOptions, Wrapper, WrapperCallback } from './types.ts';
 
 export type * from './types.ts';
+
+export function wrap(workerPath: string, options: WrapOptions = {}): Wrapper {
+  const { callbacks = true, env = process.env, storagePath } = options;
+
+  return function wrappedWorker(version: string, ...args: unknown[]): void {
+    const isLocal = version === 'local' || version === process.version;
+
+    if (isLocal) {
+      const fn = _require(workerPath);
+      return typeof fn === 'function' ? fn.apply(null, args) : fn;
+    }
+
+    const callback = args.pop() as WrapperCallback;
+    try {
+      const result = call({ version, callbacks, env, storagePath } as VersionInfo, workerPath, ...args);
+      callback(null, result);
+    } catch (err) {
+      callback(err);
+    }
+  };
+}
+
 export default function call(versionInfo: string | VersionInfo, filePath: string, ...args: unknown[]): unknown {
   if (typeof versionInfo === 'string') versionInfo = { version: versionInfo } as VersionInfo;
   const installOptions = versionInfo.storagePath ? { storagePath: versionInfo.storagePath } : ({} as InstallOptions);
