@@ -26,7 +26,7 @@ let wrapDeprecationWarned = false;
  */
 export default function call(version: string, workerPath: string, options?: CallOptions, ...args: unknown[]): unknown {
   const opts = options || {};
-  const callbacks = opts.callbacks !== false; // default true
+  const callbacks = opts.callbacks === true; // default false (matches function-exec-sync)
   const env = opts.env || process.env;
   const installOptions = opts.storagePath ? { storagePath: opts.storagePath } : ({} as InstallOptions);
 
@@ -64,8 +64,8 @@ export default function call(version: string, workerPath: string, options?: Call
  * @returns A function that calls the worker with the bound version/path/options
  */
 export function bind(version: string, workerPath: string, options?: BindOptions): BoundCaller {
-  const opts = { callbacks: true, ...options };
-  const callbacks = opts.callbacks !== false;
+  const opts = options || {};
+  const callbacks = opts.callbacks === true; // default false (matches function-exec-sync)
   const env = opts.env || process.env;
   const installOptions = opts.storagePath ? { storagePath: opts.storagePath } : ({} as InstallOptions);
 
@@ -140,7 +140,7 @@ export function wrap(workerPath: string, options: WrapOptions = {}): Wrapper {
     wrapDeprecationWarned = true;
   }
 
-  const { callbacks = true, env = process.env, storagePath } = options;
+  const { callbacks = false, env = process.env, storagePath } = options;
 
   return function wrappedWorker(version: string, ...args: unknown[]): void {
     // Keep 'local' support for backwards compatibility
