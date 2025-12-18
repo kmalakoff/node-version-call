@@ -16,6 +16,9 @@ export type * from './types.ts';
 const _require = typeof require === 'undefined' ? Module.createRequire(import.meta.url) : require;
 const SLEEP_MS = 60;
 
+let functionExec: typeof functionExecSync = null;
+let nodeSemvers = null;
+
 // Compat: os.homedir() doesn't exist in Node 0.8
 function homedir(): string {
   if (typeof os.homedir === 'function') return os.homedir();
@@ -71,7 +74,7 @@ function findInstalledVersion(version: string, storagePath?: string): InstallRes
  */
 function resolveAndInstall(version: string, installOptions: InstallOptions): InstallResult {
   // Load available versions and find the best match
-  const nodeSemvers = _require('node-semvers');
+  if (!nodeSemvers) nodeSemvers = _require('node-semvers');
   const semvers = nodeSemvers.loadSync();
   const resolved = semvers.resolve(version);
 
@@ -111,29 +114,26 @@ export default function call(version: string, workerPath: string, options?: Call
   const env = opts.env || process.env;
   const installOptions = opts.storagePath ? { storagePath: opts.storagePath } : ({} as InstallOptions);
 
-  // Local execution - current process matches
-  if (version === process.version || semver.satisfies(process.version, version)) {
-    if (callbacks) {
-      const PATH_KEY = pathKey();
-      if (opts.env && !opts.env[PATH_KEY]) {
-        throw new Error(`node-version-call: options.env missing required ${PATH_KEY}`);
-      }
-      const execOptions = { execPath: process.execPath, sleep: SLEEP_MS, callbacks: true, env };
-      return (_require('function-exec-sync') as typeof functionExecSync).apply(null, [execOptions, workerPath, ...args]);
-    }
+  const currentSatisfies = version === process.version || semver.satisfies(process.version, version);
+
+  if (currentSatisfies && !callbacks) {
     const fn = _require(workerPath);
     return typeof fn === 'function' ? fn.apply(null, args) : fn;
   }
 
-  // Check for installed version first
-  let result = findInstalledVersion(version, opts.storagePath);
+  if (!functionExec) functionExec = _require('function-exec-sync');
 
-  // If not installed, resolve and install
-  if (!result) {
-    result = resolveAndInstall(version, installOptions);
+  if (currentSatisfies) {
+    const PATH_KEY = pathKey();
+    if (opts.env && !opts.env[PATH_KEY]) {
+      throw new Error(`node-version-call: options.env missing required ${PATH_KEY}`);
+    }
+    const execOptions = { execPath: process.execPath, sleep: SLEEP_MS, callbacks: true, env };
+    return functionExec.apply(null, [execOptions, workerPath, ...args]);
   }
 
-  const functionExec = _require('function-exec-sync') as typeof functionExecSync;
+  let result = findInstalledVersion(version, opts.storagePath);
+  if (!result) result = resolveAndInstall(version, installOptions);
 
   if (useSpawnOptions) {
     const execOptions = spawnOptions(result.installPath, { execPath: result.execPath, sleep: SLEEP_MS, callbacks, env } as SpawnOptions);
@@ -160,48 +160,39 @@ export function bind(version: string, workerPath: string, options?: BindOptions)
   const env = opts.env || process.env;
   const installOptions = opts.storagePath ? { storagePath: opts.storagePath } : ({} as InstallOptions);
 
-  // Cache install result on first call (lazy)
   let initialized = false;
   let isLocal: boolean;
   let cachedInstallResult: InstallResult | null = null;
 
   return function boundCaller(...args: unknown[]): unknown {
-    // Check if last arg is a callback first
     const lastArg = args[args.length - 1];
     const hasCallback = typeof lastArg === 'function';
 
     const execute = (): unknown => {
-      // Lazy initialization on first call
       if (!initialized) {
         isLocal = version === process.version || semver.satisfies(process.version, version);
         if (!isLocal) {
-          // Check for installed version first
           cachedInstallResult = findInstalledVersion(version, opts.storagePath);
-
-          // If not installed, resolve and install
-          if (!cachedInstallResult) {
-            cachedInstallResult = resolveAndInstall(version, installOptions);
-          }
+          if (!cachedInstallResult) cachedInstallResult = resolveAndInstall(version, installOptions);
         }
         initialized = true;
       }
 
-      if (isLocal) {
-        // Local execution
-        if (callbacks) {
-          const PATH_KEY = pathKey();
-          if (opts.env && !opts.env[PATH_KEY]) {
-            throw new Error(`node-version-call: options.env missing required ${PATH_KEY}`);
-          }
-          const execOptions = { execPath: process.execPath, sleep: SLEEP_MS, callbacks: true, env };
-          return (_require('function-exec-sync') as typeof functionExecSync).apply(null, [execOptions, workerPath, ...args]);
-        }
+      if (isLocal && !callbacks) {
         const fn = _require(workerPath);
         return typeof fn === 'function' ? fn.apply(null, args) : fn;
       }
 
-      // Execute in installed Node
-      const functionExec = _require('function-exec-sync') as typeof functionExecSync;
+      if (!functionExec) functionExec = _require('function-exec-sync');
+
+      if (isLocal) {
+        const PATH_KEY = pathKey();
+        if (opts.env && !opts.env[PATH_KEY]) {
+          throw new Error(`node-version-call: options.env missing required ${PATH_KEY}`);
+        }
+        const execOptions = { execPath: process.execPath, sleep: SLEEP_MS, callbacks: true, env };
+        return functionExec.apply(null, [execOptions, workerPath, ...args]);
+      }
 
       if (useSpawnOptions) {
         const execOptions = spawnOptions(cachedInstallResult?.installPath, { execPath: cachedInstallResult?.execPath, sleep: SLEEP_MS, callbacks, env } as SpawnOptions);
