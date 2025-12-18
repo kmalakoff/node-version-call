@@ -17,21 +17,21 @@ const OPTIONS = {
   storagePath: path.join(TMP_DIR),
 };
 
-const versions = ['local', '0.8.28', '12', '18', 'lts'];
-function addTests(fn) {
+const versions = [process.version, '0.8.28', '12', '18', '20'];
+function addTests(fn: (version: string) => () => void) {
   for (let i = 0; i < versions.length; i++) {
-    it(`can call on ${versions[i]}`, fn(versions[i]));
+    it(`works with version ${versions[i]}`, fn(versions[i]));
   }
 }
 
-describe('node-version-call', () => {
+describe('call', () => {
   before((cb) => safeRm(TMP_DIR, cb));
   after((cb) => safeRm(TMP_DIR, cb));
 
   describe('callbacks', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'callbacks.cjs');
-      const result = call({ version, callbacks: true, ...OPTIONS }, fnPath, 'arg1');
+      const result = call(version, fnPath, { callbacks: true, ...OPTIONS }, 'arg1');
       assert.equal(result, 'arg1');
     });
   });
@@ -39,7 +39,7 @@ describe('node-version-call', () => {
   describe('no export', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'noExport.cjs');
-      const result = call(version, fnPath);
+      const result = call(version, fnPath, { callbacks: false, ...OPTIONS });
       assert.equal(keys(result).length, 0);
     });
   });
@@ -47,21 +47,14 @@ describe('node-version-call', () => {
   describe('process version', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'processVersion.cjs');
-      const result = call({ version, ...OPTIONS }, fnPath) as string;
+      const result = call(version, fnPath, { callbacks: false, ...OPTIONS }) as string;
 
-      switch (version) {
-        case 'local':
-          assert.equal(result, process.version);
-          break;
-        case 'lts':
-          assert.equal(result[0], 'v');
-          assert.ok(isVersion(result.slice(1)));
-          break;
-        default:
-          assert.equal(result.indexOf(`v${version}`), 0);
-          assert.ok(isVersion(result.slice(1)));
-          assert.ok(result.slice(1).indexOf(version) === 0);
-          break;
+      if (version === process.version) {
+        assert.equal(result, process.version);
+      } else {
+        assert.equal(result.indexOf(`v${version}`), 0);
+        assert.ok(isVersion(result.slice(1)));
+        assert.ok(result.slice(1).indexOf(version) === 0);
       }
     });
   });
@@ -79,7 +72,7 @@ describe('node-version-call', () => {
         major > 0 ? [typeof URL === 'undefined' ? null : new URL('https://hello.com'), typeof Map === 'undefined' ? null : new Map(), typeof Set === 'undefined' ? null : new Set()] : [],
       ];
       const fnPath = path.join(DATA, 'returnArguments.cjs');
-      const result = call({ version, ...OPTIONS }, fnPath, ...args);
+      const result = call(version, fnPath, { callbacks: false, ...OPTIONS }, ...args);
       assert.equal(JSON.stringify(result), JSON.stringify(args));
     });
   });
@@ -88,10 +81,10 @@ describe('node-version-call', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'throwError.cjs');
       try {
-        call(version, fnPath);
+        call(version, fnPath, { callbacks: false, ...OPTIONS });
         assert.ok(false);
       } catch (err) {
-        assert.equal(err.message, 'boom');
+        assert.equal((err as Error).message, 'boom');
       }
     });
   });
@@ -100,7 +93,7 @@ describe('node-version-call', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'envCheck.cjs');
       const PATH_KEY = pathKey();
-      const result = call({ version, callbacks: true, env: { TEST_ENV_VAR: 'passed', [PATH_KEY]: process.env[PATH_KEY] }, ...OPTIONS }, fnPath);
+      const result = call(version, fnPath, { callbacks: true, env: { TEST_ENV_VAR: 'passed', [PATH_KEY]: process.env[PATH_KEY] }, ...OPTIONS });
       assert.equal(result, 'passed');
     });
   });
