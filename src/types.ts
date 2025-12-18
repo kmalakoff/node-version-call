@@ -1,5 +1,6 @@
 export type CallOptions = {
   callbacks?: boolean;
+  spawnOptions?: boolean;
   storagePath?: string;
   env?: NodeJS.ProcessEnv;
 };
