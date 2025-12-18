@@ -8,6 +8,7 @@ import isVersion from 'is-version';
 import keys from 'lodash.keys';
 import call from 'node-version-call';
 import path from 'path';
+import semver from 'semver';
 import url from 'url';
 
 const __dirname = path.dirname(typeof __filename !== 'undefined' ? __filename : url.fileURLToPath(import.meta.url));
@@ -17,7 +18,8 @@ const OPTIONS = {
   storagePath: path.join(TMP_DIR),
 };
 
-const versions = [process.version, '0.8.28', '12', '18', '20'];
+// Versions that can be installed (including ranges)
+const versions = [process.version, '>0', '>=14', '0.8.28', '12', '18', '20', '>=18', '>=20'];
 function addTests(fn: (version: string) => () => void) {
   for (let i = 0; i < versions.length; i++) {
     it(`works with version ${versions[i]}`, fn(versions[i]));
@@ -51,6 +53,11 @@ describe('call', () => {
 
       if (version === process.version) {
         assert.equal(result, process.version);
+      } else if (version[0] === '>' || version[0] === '<' || version[0] === '^' || version[0] === '~') {
+        // For semver ranges, verify result satisfies the range
+        assert.equal(result[0], 'v');
+        assert.ok(isVersion(result.slice(1)));
+        assert.ok(semver.satisfies(result, version), `${result} should satisfy ${version}`);
       } else {
         assert.equal(result.indexOf(`v${version}`), 0);
         assert.ok(isVersion(result.slice(1)));
@@ -95,6 +102,40 @@ describe('call', () => {
       const PATH_KEY = pathKey();
       const result = call(version, fnPath, { callbacks: true, env: { TEST_ENV_VAR: 'passed', [PATH_KEY]: process.env[PATH_KEY] }, ...OPTIONS });
       assert.equal(result, 'passed');
+    });
+  });
+
+  describe('error on version not found', () => {
+    it('throws when no matching Node version', () => {
+      const fnPath = path.join(DATA, 'processVersion.cjs');
+      try {
+        call('>=9999', fnPath, { callbacks: false, ...OPTIONS });
+        assert.ok(false, 'Should have thrown');
+      } catch (err) {
+        assert.ok(err);
+      }
+    });
+  });
+
+  describe('spawnOptions', () => {
+    it('defaults spawnOptions to true', () => {
+      const fnPath = path.join(DATA, 'processVersion.cjs');
+      const result = call(process.version, fnPath, { callbacks: false, ...OPTIONS }) as string;
+      assert.equal(result, process.version);
+    });
+
+    it('works with spawnOptions: false', () => {
+      const fnPath = path.join(DATA, 'processVersion.cjs');
+      const result = call(process.version, fnPath, { callbacks: false, spawnOptions: false, ...OPTIONS }) as string;
+      assert.equal(result, process.version);
+    });
+
+    it('spawnOptions ensures child processes use correct Node version', () => {
+      const fnPath = path.join(DATA, 'childProcessVersion.cjs');
+      const result = call('18', fnPath, { callbacks: false, ...OPTIONS }) as { workerVersion: string; childVersion: string };
+      // Worker and child should both be v18
+      assert.equal(result.workerVersion, result.childVersion);
+      assert.ok(semver.satisfies(result.workerVersion, '18'), `${result.workerVersion} should satisfy 18`);
     });
   });
 });

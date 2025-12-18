@@ -6,6 +6,7 @@ import pathKey from 'env-path-key';
 import { safeRm } from 'fs-remove-compat';
 import { bind } from 'node-version-call';
 import path from 'path';
+import semver from 'semver';
 import url from 'url';
 
 const __dirname = path.dirname(typeof __filename !== 'undefined' ? __filename : url.fileURLToPath(import.meta.url));
@@ -15,8 +16,8 @@ const OPTIONS = {
   storagePath: path.join(TMP_DIR),
 };
 
-// Versions that can be installed
-const versions = [process.version, '18', '20'];
+// Versions that can be installed (including ranges)
+const versions = [process.version, '>0', '>=14', '18', '20', '>=18', '>=20'];
 
 function addTests(fn: (version: string) => () => void) {
   for (let i = 0; i < versions.length; i++) {
@@ -74,6 +75,18 @@ describe('bind', () => {
       });
       assert.equal(errorCaught, true);
     });
+
+    it('throws when no matching Node version', () => {
+      const fnPath = path.join(DATA, 'processVersion.cjs');
+      const worker = bind('>=9999', fnPath, { callbacks: false, ...OPTIONS });
+
+      let errorCaught = false;
+      worker((err: unknown) => {
+        errorCaught = true;
+        assert.ok(err);
+      });
+      assert.equal(errorCaught, true);
+    });
   });
 
   describe('default options', () => {
@@ -81,7 +94,7 @@ describe('bind', () => {
       const fnPath = path.join(DATA, 'processVersion.cjs');
       const worker = bind(process.version, fnPath);
       const result = worker() as string;
-      assert.equal(result[0], 'v');
+      assert.equal(result, process.version);
     });
 
     it('defaults env to process.env', () => {
@@ -91,6 +104,31 @@ describe('bind', () => {
       const result = worker() as string;
       assert.equal(result, 'from-process-env');
       delete process.env.TEST_ENV_VAR;
+    });
+  });
+
+  describe('spawnOptions', () => {
+    it('defaults spawnOptions to true', () => {
+      const fnPath = path.join(DATA, 'processVersion.cjs');
+      const worker = bind(process.version, fnPath, { callbacks: false, ...OPTIONS });
+      const result = worker() as string;
+      assert.equal(result, process.version);
+    });
+
+    it('works with spawnOptions: false', () => {
+      const fnPath = path.join(DATA, 'processVersion.cjs');
+      const worker = bind(process.version, fnPath, { callbacks: false, spawnOptions: false, ...OPTIONS });
+      const result = worker() as string;
+      assert.equal(result, process.version);
+    });
+
+    it('spawnOptions ensures child processes use correct Node version', () => {
+      const fnPath = path.join(DATA, 'childProcessVersion.cjs');
+      const worker = bind('18', fnPath, { callbacks: false, ...OPTIONS });
+      const result = worker() as { workerVersion: string; childVersion: string };
+      // Worker and child should both be v18
+      assert.equal(result.workerVersion, result.childVersion);
+      assert.ok(semver.satisfies(result.workerVersion, '18'), `${result.workerVersion} should satisfy 18`);
     });
   });
 
