@@ -59,7 +59,7 @@
   },
   "dependencies": {
     "env-path-key": "^1.0.0",
-    "function-exec-sync": "^1.0.0",
+    "function-exec-sync": "^1.1.6",
     "node-version-install": "^1.0.5",
     "node-version-utils": "^1.0.2"
   },
