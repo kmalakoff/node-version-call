@@ -1,14 +1,10 @@
 import pathKey from 'env-path-key';
-import fs from 'fs';
 import type functionExecSync from 'function-exec-sync';
 import Module from 'module';
-import type { InstallOptions, InstallResult } from 'node-version-install';
-import { sync as installSync } from 'node-version-install';
 import { type SpawnOptions, spawnOptions } from 'node-version-utils';
-import os from 'os';
-import path from 'path';
 import semver from 'semver';
 
+import resolveVersion from './lib/resolveVersion.ts';
 import type { BindOptions, BoundCaller, CallerCallback, CallOptions, VersionInfo, WrapOptions, Wrapper } from './types.ts';
 
 export type * from './types.ts';
@@ -17,85 +13,7 @@ const _require = typeof require === 'undefined' ? Module.createRequire(import.me
 const SLEEP_MS = 60;
 
 let functionExec: typeof functionExecSync = null;
-let nodeSemvers = null;
-
-// Compat: os.homedir() doesn't exist in Node 0.8
-function homedir(): string {
-  if (typeof os.homedir === 'function') return os.homedir();
-  return _require('homedir-polyfill')();
-}
-
-const DEFAULT_STORAGE_PATH = path.join(homedir(), '.nvu', 'installed');
-
 let wrapDeprecationWarned = false;
-
-/**
- * Find an installed version that satisfies the semver constraint.
- * Returns the InstallResult if found, null otherwise.
- */
-function findInstalledVersion(version: string, storagePath?: string): InstallResult | null {
-  const storage = storagePath || DEFAULT_STORAGE_PATH;
-
-  // Check if current process satisfies
-  if (version === process.version || semver.satisfies(process.version, version)) {
-    return null; // Signal to use local execution
-  }
-
-  // List installed versions
-  let dirs: string[];
-  try {
-    dirs = fs.readdirSync(storage);
-  } catch {
-    return null; // Storage doesn't exist yet
-  }
-
-  // Filter to valid version directories
-  const installed = dirs.filter((d) => d[0] === 'v' && semver.valid(d));
-  if (installed.length === 0) return null;
-
-  // Find best matching version
-  const match = semver.maxSatisfying(installed, version);
-  if (!match) return null;
-
-  // Build InstallResult
-  const installPath = path.join(storage, match);
-  const isWindows = process.platform === 'win32';
-  const execPath = isWindows ? path.join(installPath, 'node.exe') : path.join(installPath, 'bin', 'node');
-
-  // Verify it exists
-  if (!fs.existsSync(execPath)) return null;
-
-  return { version: match, installPath, execPath, platform: process.platform };
-}
-
-/**
- * Resolve a semver constraint to a single version and install it.
- * Uses node-semvers to find the best matching version, then installs.
- */
-function resolveAndInstall(version: string, installOptions: InstallOptions): InstallResult {
-  // Load available versions and find the best match
-  if (!nodeSemvers) nodeSemvers = _require('node-semvers');
-  const semvers = nodeSemvers.loadSync();
-  const resolved = semvers.resolve(version);
-
-  if (!resolved) {
-    throw new Error(`node-version-call: version "${version}" failed to resolve`);
-  }
-
-  // If resolved to array, pick the first (highest) one
-  const targetVersion = Array.isArray(resolved) ? resolved[0] : resolved;
-  if (!targetVersion) {
-    throw new Error(`node-version-call: version "${version}" resolved to zero versions`);
-  }
-
-  // Install the specific version
-  const results = installSync(targetVersion, installOptions);
-  if (!results || results.length === 0) {
-    throw new Error(`node-version-call: failed to install version "${targetVersion}"`);
-  }
-
-  return results[0];
-}
 
 /**
  * Call a function in a specific Node version.
@@ -112,7 +30,6 @@ export default function call(version: string, workerPath: string, options?: Call
   const callbacks = opts.callbacks === true; // default false (matches function-exec-sync)
   const useSpawnOptions = opts.spawnOptions !== false; // default true
   const env = opts.env || process.env;
-  const installOptions = opts.storagePath ? { storagePath: opts.storagePath } : ({} as InstallOptions);
 
   const currentSatisfies = version === process.version || semver.satisfies(process.version, version);
 
@@ -132,15 +49,14 @@ export default function call(version: string, workerPath: string, options?: Call
     return functionExec.apply(null, [execOptions, workerPath, ...args]);
   }
 
-  let result = findInstalledVersion(version, opts.storagePath);
-  if (!result) result = resolveAndInstall(version, installOptions);
+  const { execPath, installPath } = resolveVersion(version, { storagePath: opts.storagePath });
 
   if (useSpawnOptions) {
-    const execOptions = spawnOptions(result.installPath, { execPath: result.execPath, sleep: SLEEP_MS, callbacks, env } as SpawnOptions);
+    const execOptions = spawnOptions(installPath, { execPath, sleep: SLEEP_MS, callbacks, env } as SpawnOptions);
     return functionExec.apply(null, [execOptions, workerPath, ...args]);
   }
 
-  const execOptions = { execPath: result.execPath, sleep: SLEEP_MS, callbacks, env };
+  const execOptions = { execPath, sleep: SLEEP_MS, callbacks, env };
   return functionExec.apply(null, [execOptions, workerPath, ...args]);
 }
 
@@ -158,11 +74,11 @@ export function bind(version: string, workerPath: string, options?: BindOptions)
   const callbacks = opts.callbacks === true; // default false (matches function-exec-sync)
   const useSpawnOptions = opts.spawnOptions !== false; // default true
   const env = opts.env || process.env;
-  const installOptions = opts.storagePath ? { storagePath: opts.storagePath } : ({} as InstallOptions);
 
   let initialized = false;
   let isLocal: boolean;
-  let cachedInstallResult: InstallResult | null = null;
+  let cachedExecPath: string | null = null;
+  let cachedInstallPath: string | null = null;
 
   return function boundCaller(...args: unknown[]): unknown {
     const lastArg = args[args.length - 1];
@@ -172,8 +88,9 @@ export function bind(version: string, workerPath: string, options?: BindOptions)
       if (!initialized) {
         isLocal = version === process.version || semver.satisfies(process.version, version);
         if (!isLocal) {
-          cachedInstallResult = findInstalledVersion(version, opts.storagePath);
-          if (!cachedInstallResult) cachedInstallResult = resolveAndInstall(version, installOptions);
+          const resolved = resolveVersion(version, { storagePath: opts.storagePath });
+          cachedExecPath = resolved.execPath;
+          cachedInstallPath = resolved.installPath;
         }
         initialized = true;
       }
@@ -195,11 +112,11 @@ export function bind(version: string, workerPath: string, options?: BindOptions)
       }
 
       if (useSpawnOptions) {
-        const execOptions = spawnOptions(cachedInstallResult?.installPath, { execPath: cachedInstallResult?.execPath, sleep: SLEEP_MS, callbacks, env } as SpawnOptions);
+        const execOptions = spawnOptions(cachedInstallPath, { execPath: cachedExecPath, sleep: SLEEP_MS, callbacks, env } as SpawnOptions);
         return functionExec.apply(null, [execOptions, workerPath, ...args]);
       }
 
-      const execOptions = { execPath: cachedInstallResult?.execPath, sleep: SLEEP_MS, callbacks, env };
+      const execOptions = { execPath: cachedExecPath, sleep: SLEEP_MS, callbacks, env };
       return functionExec.apply(null, [execOptions, workerPath, ...args]);
     };
 
