@@ -69,10 +69,10 @@
   "devDependencies": {
     "@types/mocha": "*",
     "@types/node": "*",
-    "fs-remove-compat": "^1.0.0",
     "is-version": "^1.0.9",
     "lodash.keys": "^4.2.0",
     "node-version-use": "*",
+    "pinkie-promise": "^2.0.1",
     "ts-dev-stack": "*",
     "tsds-config": "*"
   },
