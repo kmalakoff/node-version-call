@@ -59,8 +59,9 @@
   },
   "dependencies": {
     "env-path-key": "^1.0.0",
-    "function-exec-sync": "^1.1.6",
+    "function-exec-sync": "^2.0.0",
     "homedir-polyfill": "^1.0.3",
+    "module-compat": "^0.1.0",
     "node-semvers": "^1.0.0",
     "node-version-install": "^1.0.5",
     "node-version-utils": "^1.0.2",
