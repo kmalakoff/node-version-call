@@ -1,24 +1,66 @@
 ## node-version-call
 
-Call a function in a specific version of node
+Call a function in a specific version of Node. Installs the version if not found.
 
-### Example 1
+See also [node-version-call-local](https://github.com/kmalakoff/node-version-call-local) for a lightweight alternative that uses Node versions already in PATH.
 
-```typescript
-import call from "node-version-call";
+### Installation
 
-const result = call("0.8", "path/to/file.js", "arg1", 2);
-console.log(result); // return value
+```bash
+npm install node-version-call
 ```
 
-### Example 2
+### Sync API (returns value, throws on error)
 
 ```javascript
-var call = require("node-version-call"); // old js calling newer js
+import { callSync, bindSync } from 'node-version-call';
 
-var result = call(">=20", "path/to/file.js", "arg1", 2);
-console.log(result); // return value
+// Immediate call - returns value synchronously
+const result = callSync('18', '/path/to/worker.js', {}, arg1, arg2);
+
+// Bound caller for repeated use
+const worker = bindSync('>=20', '/path/to/worker.js', {});
+const result1 = worker(arg1);
+const result2 = worker(arg2);
 ```
+
+### Async API (callback or Promise)
+
+```javascript
+import call, { bind } from 'node-version-call';
+
+// With callback (last argument is function)
+call('18', '/path/to/worker.js', {}, arg1, (err, result) => {
+  if (err) return console.error(err);
+  console.log(result);
+});
+
+// With Promise (no callback)
+const result = await call('18', '/path/to/worker.js', {}, arg1);
+
+// Bound caller with callback
+const worker = bind('>=20', '/path/to/worker.js', {});
+worker(arg1, (err, result) => { /* ... */ });
+
+// Bound caller with Promise
+const result = await worker(arg1);
+```
+
+### Options
+
+```typescript
+interface CallOptions {
+  callbacks?: boolean;      // Worker uses callback style (default: false)
+  spawnOptions?: boolean;   // Use spawnOptions for child process env setup (default: true)
+  storagePath?: string;     // Where to install Node versions
+  env?: NodeJS.ProcessEnv;  // Environment variables (default: process.env)
+}
+```
+
+- **callbacks** - Set to `true` if the worker function uses callback style (`fn(...args, callback)`) rather than returning a value or Promise
+- **spawnOptions** - When `true`, sets up proper environment (PATH, etc.) so child processes spawned by the worker use the correct Node version
+- **storagePath** - Directory where Node versions will be installed
+- **env** - Custom environment variables to pass to the worker
 
 ### Documentation
 

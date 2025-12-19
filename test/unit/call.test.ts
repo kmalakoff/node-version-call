@@ -3,13 +3,25 @@ delete process.env.NODE_OPTIONS;
 
 import assert from 'assert';
 import pathKey from 'env-path-key';
-import { safeRm } from 'fs-remove-compat';
 import isVersion from 'is-version';
 import keys from 'lodash.keys';
-import call from 'node-version-call';
+import call, { callSync } from 'node-version-call';
 import path from 'path';
+import Pinkie from 'pinkie-promise';
 import semver from 'semver';
 import url from 'url';
+
+// Promise polyfill for old Node versions
+(() => {
+  if (typeof global === 'undefined') return;
+  const globalPromise = global.Promise;
+  before(() => {
+    global.Promise = Pinkie;
+  });
+  after(() => {
+    global.Promise = globalPromise;
+  });
+})();
 
 const __dirname = path.dirname(typeof __filename !== 'undefined' ? __filename : url.fileURLToPath(import.meta.url));
 const DATA = path.join(__dirname, '..', 'data');
@@ -26,22 +38,17 @@ function addTests(fn: (version: string) => () => void) {
   }
 }
 
-describe('call', () => {
-  before((cb) => safeRm(TMP_DIR, cb));
-  after((cb) => safeRm(TMP_DIR, cb));
+function addAsyncTests(fn: (version: string) => () => Promise<void>) {
+  for (let i = 0; i < versions.length; i++) {
+    it(`works with version ${versions[i]}`, fn(versions[i]));
+  }
+}
 
-  describe('callbacks', () => {
-    addTests((version) => () => {
-      const fnPath = path.join(DATA, 'callbacks.cjs');
-      const result = call(version, fnPath, { callbacks: true, ...OPTIONS }, 'arg1');
-      assert.equal(result, 'arg1');
-    });
-  });
-
+describe('callSync', () => {
   describe('no export', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'noExport.cjs');
-      const result = call(version, fnPath, { callbacks: false, ...OPTIONS });
+      const result = callSync(version, fnPath, { ...OPTIONS });
       assert.equal(keys(result).length, 0);
     });
   });
@@ -49,7 +56,7 @@ describe('call', () => {
   describe('process version', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'processVersion.cjs');
-      const result = call(version, fnPath, { callbacks: false, ...OPTIONS }) as string;
+      const result = callSync(version, fnPath, { ...OPTIONS }) as string;
 
       if (version === process.version) {
         assert.equal(result, process.version);
@@ -79,7 +86,7 @@ describe('call', () => {
         major > 0 ? [typeof URL === 'undefined' ? null : new URL('https://hello.com'), typeof Map === 'undefined' ? null : new Map(), typeof Set === 'undefined' ? null : new Set()] : [],
       ];
       const fnPath = path.join(DATA, 'returnArguments.cjs');
-      const result = call(version, fnPath, { callbacks: false, ...OPTIONS }, ...args);
+      const result = callSync(version, fnPath, { ...OPTIONS }, ...args);
       assert.equal(JSON.stringify(result), JSON.stringify(args));
     });
   });
@@ -88,7 +95,7 @@ describe('call', () => {
     addTests((version) => () => {
       const fnPath = path.join(DATA, 'throwError.cjs');
       try {
-        call(version, fnPath, { callbacks: false, ...OPTIONS });
+        callSync(version, fnPath, { ...OPTIONS });
         assert.ok(false);
       } catch (err) {
         assert.equal((err as Error).message, 'boom');
@@ -96,20 +103,11 @@ describe('call', () => {
     });
   });
 
-  describe('env passing', () => {
-    addTests((version) => () => {
-      const fnPath = path.join(DATA, 'envCheck.cjs');
-      const PATH_KEY = pathKey();
-      const result = call(version, fnPath, { callbacks: true, env: { TEST_ENV_VAR: 'passed', [PATH_KEY]: process.env[PATH_KEY] }, ...OPTIONS });
-      assert.equal(result, 'passed');
-    });
-  });
-
   describe('error on version not found', () => {
     it('throws when no matching Node version', () => {
       const fnPath = path.join(DATA, 'processVersion.cjs');
       try {
-        call('>=9999', fnPath, { callbacks: false, ...OPTIONS });
+        callSync('>=9999', fnPath, { ...OPTIONS });
         assert.ok(false, 'Should have thrown');
       } catch (err) {
         assert.ok(err);
@@ -120,22 +118,109 @@ describe('call', () => {
   describe('spawnOptions', () => {
     it('defaults spawnOptions to true', () => {
       const fnPath = path.join(DATA, 'processVersion.cjs');
-      const result = call(process.version, fnPath, { callbacks: false, ...OPTIONS }) as string;
+      const result = callSync(process.version, fnPath, { ...OPTIONS }) as string;
       assert.equal(result, process.version);
     });
 
     it('works with spawnOptions: false', () => {
       const fnPath = path.join(DATA, 'processVersion.cjs');
-      const result = call(process.version, fnPath, { callbacks: false, spawnOptions: false, ...OPTIONS }) as string;
+      const result = callSync(process.version, fnPath, { spawnOptions: false, ...OPTIONS }) as string;
       assert.equal(result, process.version);
     });
 
     it('spawnOptions ensures child processes use correct Node version', () => {
       const fnPath = path.join(DATA, 'childProcessVersion.cjs');
-      const result = call('18', fnPath, { callbacks: false, ...OPTIONS }) as { workerVersion: string; childVersion: string };
+      const result = callSync('18', fnPath, { ...OPTIONS }) as { workerVersion: string; childVersion: string };
       // Worker and child should both be v18
       assert.equal(result.workerVersion, result.childVersion);
       assert.ok(semver.satisfies(result.workerVersion, '18'), `${result.workerVersion} should satisfy 18`);
+    });
+  });
+
+  describe('callbacks option (worker uses callback style)', () => {
+    addTests((version) => () => {
+      const fnPath = path.join(DATA, 'callbacks.cjs');
+      // Worker uses callback style internally, but callSync returns sync
+      const result = callSync(version, fnPath, { callbacks: true, ...OPTIONS }, 'arg1');
+      assert.equal(result, 'arg1');
+    });
+  });
+});
+
+describe('call (async)', () => {
+  describe('with callback', () => {
+    addTests((version) => () => {
+      const fnPath = path.join(DATA, 'processVersion.cjs');
+      let called = false;
+      call(version, fnPath, { ...OPTIONS }, (err: unknown, result: unknown) => {
+        called = true;
+        assert.equal(err, null);
+        assert.equal((result as string)[0], 'v');
+      });
+      assert.equal(called, true);
+    });
+  });
+
+  describe('with Promise', () => {
+    addAsyncTests((version) => async () => {
+      const fnPath = path.join(DATA, 'processVersion.cjs');
+      const result = (await call(version, fnPath, { ...OPTIONS })) as string;
+      assert.equal(result[0], 'v');
+    });
+  });
+
+  describe('callback with error', () => {
+    addTests((version) => () => {
+      const fnPath = path.join(DATA, 'throwError.cjs');
+      let called = false;
+      call(version, fnPath, { ...OPTIONS }, (err: unknown, result: unknown) => {
+        called = true;
+        assert.ok(err);
+        assert.equal((err as Error).message, 'boom');
+        assert.equal(result, undefined);
+      });
+      assert.equal(called, true);
+    });
+  });
+
+  describe('Promise with error', () => {
+    addAsyncTests((version) => async () => {
+      const fnPath = path.join(DATA, 'throwError.cjs');
+      try {
+        await call(version, fnPath, { ...OPTIONS });
+        assert.ok(false, 'Should have thrown');
+      } catch (err) {
+        assert.equal((err as Error).message, 'boom');
+      }
+    });
+  });
+
+  describe('env passing with callback', () => {
+    addTests((version) => () => {
+      const fnPath = path.join(DATA, 'envCheck.cjs');
+      const PATH_KEY = pathKey();
+      let called = false;
+      // envCheck.cjs worker uses callback style, so we need callbacks: true
+      call(version, fnPath, { callbacks: true, env: { TEST_ENV_VAR: 'passed', [PATH_KEY]: process.env[PATH_KEY] }, ...OPTIONS }, (err: unknown, result: unknown) => {
+        called = true;
+        assert.equal(err, null);
+        assert.equal(result, 'passed');
+      });
+      assert.equal(called, true);
+    });
+  });
+
+  describe('callbacks option (worker uses callback style)', () => {
+    addTests((version) => () => {
+      const fnPath = path.join(DATA, 'callbacks.cjs');
+      let called = false;
+      // Worker uses callback style, caller uses callback
+      call(version, fnPath, { callbacks: true, ...OPTIONS }, 'arg1', (err: unknown, result: unknown) => {
+        called = true;
+        assert.equal(err, null);
+        assert.equal(result, 'arg1');
+      });
+      assert.equal(called, true);
     });
   });
 });
