@@ -1,3 +1,5 @@
+import type { InteropMode, ModuleType } from 'module-compat';
+
 /**
  * Options for call/callSync and bind/bindSync functions.
  */
@@ -10,6 +12,10 @@ export type CallOptions = {
   storagePath?: string;
   /** Environment variables (default: process.env) */
   env?: NodeJS.ProcessEnv;
+  /** Module type detection: 'auto' (default), 'module', or 'commonjs' */
+  moduleType?: 'auto' | ModuleType;
+  /** How to handle ESM default exports: 'default' (default), 'raw', or 'typescript' */
+  interop?: InteropMode;
 };
 
 /**
