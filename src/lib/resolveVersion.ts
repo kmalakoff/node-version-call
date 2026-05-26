@@ -9,7 +9,8 @@ import { homedir } from '../compat.ts';
 
 const _require = typeof require === 'undefined' ? Module.createRequire(import.meta.url) : require;
 
-let nodeSemvers = null;
+type NodeSemversModule = { loadSync: () => { resolve: (version: string) => string | string[] | null } };
+let nodeSemvers: NodeSemversModule | null = null;
 
 const DEFAULT_STORAGE_PATH = path.join(homedir(), '.nvu');
 
@@ -42,8 +43,8 @@ function findInstalledVersion(version: string, storagePath: string): InstallResu
 }
 
 function resolveAndInstall(version: string, installOptions: InstallOptions): InstallResult {
-  if (!nodeSemvers) nodeSemvers = _require('node-semvers');
-  const semvers = nodeSemvers.loadSync();
+  if (!nodeSemvers) nodeSemvers = _require('node-semvers') as NodeSemversModule;
+  const semvers = nodeSemvers?.loadSync();
   const resolved = semvers.resolve(version);
 
   if (!resolved) {
