@@ -1,0 +1,91 @@
+import pathKey from 'env-path-key';
+import Module from 'module';
+import { loadModuleSync } from 'module-compat';
+import { spawnOptions } from 'node-version-utils';
+import semver from 'semver';
+import resolveVersion from './lib/resolveVersion.js';
+const _require = typeof require === 'undefined' ? Module.createRequire(import.meta.url) : require;
+const SLEEP_MS = 60;
+/**
+ * Create a bound sync caller for a specific version and worker.
+ * Installs the version on first call (lazy) and caches it.
+ *
+ * @param version - Version spec ('v18.0.0', '>=18', '20')
+ * @param workerPath - Path to the file to execute
+ * @param options - Execution options
+ * @returns A function that calls the worker synchronously with the bound version/path/options
+ */ let functionExec = null;
+export default function bindSync(version, workerPath, options) {
+    const opts = options || {};
+    const callbacks = opts.callbacks;
+    const useSpawnOptions = opts.spawnOptions !== false; // default true
+    const env = opts.env || process.env;
+    const moduleType = opts.moduleType || 'auto';
+    const interop = opts.interop || 'default';
+    let initialized = false;
+    let isLocal;
+    let cachedExecPath = null;
+    let cachedInstallPath = null;
+    return function boundSyncCaller(...args) {
+        // Initialize on first call
+        if (!initialized) {
+            isLocal = version === process.version || semver.satisfies(process.version, version);
+            if (!isLocal) {
+                const resolved = resolveVersion(version, {
+                    storagePath: opts.storagePath
+                });
+                cachedExecPath = resolved.execPath;
+                cachedInstallPath = resolved.installPath;
+            }
+            initialized = true;
+        }
+        // Local execution - current process satisfies version
+        if (isLocal) {
+            // If worker uses callbacks, we need function-exec-sync to convert to sync
+            if (callbacks) {
+                const PATH_KEY = pathKey();
+                if (opts.env && !opts.env[PATH_KEY]) {
+                    throw new Error(`node-version-call: options.env missing required ${PATH_KEY}`);
+                }
+                if (!functionExec) functionExec = _require('function-exec-sync');
+                const execOptions = {
+                    execPath: process.execPath,
+                    sleep: SLEEP_MS,
+                    callbacks,
+                    env,
+                    moduleType,
+                    interop
+                };
+                return functionExec === null || functionExec === void 0 ? void 0 : functionExec(execOptions, workerPath, ...args);
+            }
+            // Use loadModuleSync for ESM support
+            const fn = loadModuleSync(workerPath, {
+                moduleType,
+                interop
+            });
+            return typeof fn === 'function' ? fn.apply(null, args) : fn;
+        }
+        // Remote execution - spawn child process
+        if (!functionExec) functionExec = _require('function-exec-sync');
+        if (useSpawnOptions) {
+            const execOptions = spawnOptions(cachedInstallPath, {
+                execPath: cachedExecPath,
+                sleep: SLEEP_MS,
+                callbacks,
+                env,
+                moduleType,
+                interop
+            });
+            return functionExec === null || functionExec === void 0 ? void 0 : functionExec(execOptions, workerPath, ...args);
+        }
+        const execOptions = {
+            execPath: cachedExecPath,
+            sleep: SLEEP_MS,
+            callbacks,
+            env,
+            moduleType,
+            interop
+        };
+        return functionExec === null || functionExec === void 0 ? void 0 : functionExec(execOptions, workerPath, ...args);
+    };
+}
