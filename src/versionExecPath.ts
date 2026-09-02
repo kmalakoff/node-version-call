@@ -1,10 +1,11 @@
 const path = require('path');
-const resolveVersion = require('node-resolve-versions');
 const accessSync = require('fs-access-sync-compat');
-
 const constants = require('./constants');
+let resolveVersion = null; // break dependencies
 
 export default function versionExecPath(version) {
+  if (!resolveVersion) resolveVersion = require('node-resolve-versions'); // break dependencies
+
   const versions = resolveVersion.sync(version);
   if (versions.length > 1) throw new Error('Multiple versions match: ' + version + ' = ' + versions.join(',') + '. Please be specific');
   const installPath = path.join(constants.installDirectory, versions[0]);
