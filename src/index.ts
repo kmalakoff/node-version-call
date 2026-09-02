@@ -1,3 +1,4 @@
+import pathKey from 'env-path-key';
 import type functionExecSync from 'function-exec-sync';
 import Module from 'module';
 import type { InstallOptions, InstallResult } from 'node-version-install';
@@ -18,6 +19,12 @@ export default function call(versionInfo: string | VersionInfo, filePath: string
   // local - just call
   if (version === process.version) {
     if (versionInfo.callbacks) {
+      if (versionInfo.env) {
+        const PATH_KEY = pathKey();
+        if (!versionInfo.env[PATH_KEY]) {
+          throw new Error(`node-version-call: options.env missing required ${PATH_KEY}`);
+        }
+      }
       const options = { execPath: process.execPath, sleep: SLEEP_MS, callbacks: versionInfo.callbacks, env: versionInfo.env };
       return (_require('function-exec-sync') as typeof functionExecSync).apply(null, [options, filePath, ...args]);
     }
