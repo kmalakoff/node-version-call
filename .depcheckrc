@@ -1,1 +1,1 @@
-ignores: ["node-version-use", "ts-dev-stack", "node-version-call", "function-exec-sync", "homedir-polyfill", "node-semvers"]
+ignores: ["node-version-call", "node-version-use", "ts-dev-stack", "function-exec-sync", "homedir-polyfill", "node-semvers"]
