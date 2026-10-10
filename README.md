@@ -68,6 +68,9 @@ interface CallOptions {
 - **moduleType** - Override automatic CommonJS or ESM worker detection
 - **interop** - Control how ESM default exports are passed across the process boundary
 
+With `callbacks: true`, worker errors preserve nested `Error` values in an
+`errors` array, including their order, messages, stacks and custom fields.
+
 ## Documentation
 
 [API Docs](https://kmalakoff.github.io/node-version-call/)
