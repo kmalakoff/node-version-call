@@ -7,7 +7,11 @@ import url from 'url';
 
 const __dirname = path.dirname(typeof __filename !== 'undefined' ? __filename : url.fileURLToPath(import.meta.url));
 const workerPath = path.join(__dirname, '..', 'data', 'combinedCallbackError.cjs');
-const options = { callbacks: true, storagePath: path.join(__dirname, '..', '..', '.tmp', 'combined-error-runtimes') };
+const options = {
+  callbacks: true,
+  storagePath: path.join(__dirname, '..', '..', '.tmp', 'combined-error-runtimes'),
+  cachePath: path.join(__dirname, '..', '..', '.cache', 'node-install-release'),
+};
 const remoteVersion = +process.versions.node.split('.')[0] === 20 ? '22' : '20';
 const values = {
   operation: 'generation failed "quoted"',

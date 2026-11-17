@@ -26,6 +26,7 @@ const DATA = path.join(__dirname, '..', 'data');
 const TMP_DIR = path.join(__dirname, '..', '..', '.tmp');
 const OPTIONS = {
   storagePath: path.join(TMP_DIR),
+  cachePath: path.join(__dirname, '..', '..', '.cache', 'node-install-release'),
 };
 
 // Versions that can be installed (including ranges)

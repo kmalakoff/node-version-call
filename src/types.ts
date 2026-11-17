@@ -10,6 +10,8 @@ export type CallOptions = {
   spawnOptions?: boolean;
   /** Where to install Node versions */
   storagePath?: string;
+  /** Where downloaded release archives are cached (default: node-install-release's own cache) */
+  cachePath?: string;
   /** Environment variables (default: process.env) */
   env?: NodeJS.ProcessEnv;
   /** Module type detection: 'auto' (default), 'module', or 'commonjs' */

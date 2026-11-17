@@ -15,7 +15,7 @@ let nodeSemvers: NodeSemversModule | null = null;
 const DEFAULT_STORAGE_PATH = path.join(homedir(), '.nvu');
 
 export type ResolvedVersion = { execPath: string; installPath: string };
-export type ResolveOptions = { storagePath?: string };
+export type ResolveOptions = { storagePath?: string; cachePath?: string };
 
 function findInstalledVersion(version: string, storagePath: string): InstallResult | null {
   const installedDir = path.join(storagePath, 'installed');
@@ -70,6 +70,8 @@ export default function resolveVersion(version: string, options?: ResolveOptions
   const found = findInstalledVersion(version, storagePath);
   if (found) return { execPath: found.execPath, installPath: found.installPath };
 
-  const installed = resolveAndInstall(version, { storagePath });
+  const installOptions: InstallOptions = { storagePath };
+  if (options?.cachePath) installOptions.cachePath = options.cachePath;
+  const installed = resolveAndInstall(version, installOptions);
   return { execPath: installed.execPath, installPath: installed.installPath };
 }

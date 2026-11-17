@@ -44,7 +44,7 @@ export default function bind(version: string, workerPath: string, options?: Bind
       if (!initialized) {
         isLocal = version === process.version || semver.satisfies(process.version, version);
         if (!isLocal) {
-          const resolved = resolveVersion(version, { storagePath: opts.storagePath });
+          const resolved = resolveVersion(version, { storagePath: opts.storagePath, cachePath: opts.cachePath });
           cachedExecPath = resolved.execPath;
           cachedInstallPath = resolved.installPath;
         }

@@ -26,8 +26,10 @@ import url from 'url';
 const __dirname = path.dirname(typeof __filename !== 'undefined' ? __filename : url.fileURLToPath(import.meta.url));
 const DATA = path.join(__dirname, '..', 'data');
 const TMP_DIR = path.join(__dirname, '..', '..', '.tmp');
+const CACHE_DIR = path.join(__dirname, '..', '..', '.cache', 'node-install-release');
 const OPTIONS = {
   storagePath: path.join(TMP_DIR),
+  cachePath: CACHE_DIR,
 };
 
 // Versions that can be installed (including ranges)

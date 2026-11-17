@@ -40,7 +40,9 @@ const result = await call('18', './worker.cjs', {}, 'first');
 
 // Bound caller with callback
 const worker = bind('>=20', './worker.cjs', {});
-worker('first', (err, result) => { /* ... */ });
+worker('first', (err, result) => {
+  /* ... */
+});
 
 // Bound caller with Promise
 const result = await worker('first');
@@ -52,10 +54,11 @@ The worker file must export a function. For example, `worker.cjs` can contain `m
 
 ```typescript
 interface CallOptions {
-  callbacks?: boolean;      // Worker uses callback style (default: false)
-  spawnOptions?: boolean;   // Use spawnOptions for child process env setup (default: true)
-  storagePath?: string;     // Where to install Node versions
-  env?: NodeJS.ProcessEnv;  // Environment variables (default: process.env)
+  callbacks?: boolean; // Worker uses callback style (default: false)
+  spawnOptions?: boolean; // Use spawnOptions for child process env setup (default: true)
+  storagePath?: string; // Where to install Node versions
+  cachePath?: string; // Where downloaded release archives are cached
+  env?: NodeJS.ProcessEnv; // Environment variables (default: process.env)
   moduleType?: 'auto' | 'module' | 'commonjs';
   interop?: 'default' | 'raw' | 'typescript';
 }
@@ -64,6 +67,7 @@ interface CallOptions {
 - **callbacks** - Set to `true` if the worker function uses callback style (`fn(...args, callback)`) rather than returning a value or Promise
 - **spawnOptions** - When `true`, sets up proper environment (PATH, etc.) so child processes spawned by the worker use the correct Node version
 - **storagePath** - Directory where Node versions will be installed
+- **cachePath** - Directory where downloaded release archives are cached (default: node-install-release's own cache)
 - **env** - Custom environment variables to pass to the worker
 - **moduleType** - Override automatic CommonJS or ESM worker detection
 - **interop** - Control how ESM default exports are passed across the process boundary
