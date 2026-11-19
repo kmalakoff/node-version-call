@@ -72,6 +72,7 @@
     "@types/mocha": "*",
     "@types/node": "*",
     "@types/semver": "^7.7.1",
+    "fs-remove-compat": "^1.0.0",
     "is-version": "^1.0.9",
     "lodash.keys": "^4.2.0",
     "node-version-use": "*",

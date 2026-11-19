@@ -4,13 +4,14 @@ import call, { bind, bindSync, callSync } from 'node-version-call';
 import path from 'path';
 import semver from 'semver';
 import url from 'url';
+import { CACHE_DIR } from '../lib/constants.ts';
 
 const __dirname = path.dirname(typeof __filename !== 'undefined' ? __filename : url.fileURLToPath(import.meta.url));
 const workerPath = path.join(__dirname, '..', 'data', 'combinedCallbackError.cjs');
 const options = {
   callbacks: true,
   storagePath: path.join(__dirname, '..', '..', '.tmp', 'combined-error-runtimes'),
-  cachePath: path.join(__dirname, '..', '..', '.cache', 'node-install-release'),
+  cachePath: CACHE_DIR,
 };
 const remoteVersion = +process.versions.node.split('.')[0] === 20 ? '22' : '20';
 const values = {
