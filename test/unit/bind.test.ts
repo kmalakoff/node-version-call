@@ -8,6 +8,7 @@ import path from 'path';
 import Pinkie from 'pinkie-promise';
 import semver from 'semver';
 import url from 'url';
+import { CACHE_DIR } from '../lib/constants.ts';
 
 // Promise polyfill for old Node versions
 (() => {
@@ -26,7 +27,7 @@ const DATA = path.join(__dirname, '..', 'data');
 const TMP_DIR = path.join(__dirname, '..', '..', '.tmp');
 const OPTIONS = {
   storagePath: path.join(TMP_DIR),
-  cachePath: path.join(__dirname, '..', '..', '.cache', 'node-install-release'),
+  cachePath: CACHE_DIR,
 };
 
 // Versions that can be installed (including ranges)
